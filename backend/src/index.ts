@@ -13,10 +13,14 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Ensure uploads directory exists (use /tmp on Vercel/serverless environments)
+const uploadsDir = process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(__dirname, '../uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn('Uploads directory warning:', e);
 }
 app.use('/uploads', express.static(uploadsDir));
 
@@ -1037,7 +1041,11 @@ app.post('/api/routes/:id/optimize', async (req: Request, res: Response) => {
   }
 });
 
-// Start Server on Port 5000
-app.listen(PORT, () => {
-  console.log(`🚀 [Fadi Charcoal System] Backend API running at: http://localhost:${PORT}`);
-});
+// Start Server locally or export for Vercel Serverless
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 [Fadi Charcoal System] Backend API running at: http://localhost:${PORT}`);
+  });
+}
+
+export default app;
