@@ -1,0 +1,124 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        Int          @id @default(autoincrement())
+  name      String
+  phone     String       @unique
+  role      String       @default("REP") // ADMIN, SUPERVISOR, REP
+  password  String       @default("123456")
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+
+  routes           DailyRoute[]
+  visits           Visit[]
+  contractedStores Store[]       @relation("RepStores")
+  conflicts        ConflictLog[] @relation("RepConflicts")
+  priorConflicts   ConflictLog[] @relation("PriorRepConflicts")
+}
+
+model Zone {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique // الكرادة، المنصور، الدورة، زيونة، الأعظمية
+  city      String   @default("بغداد")
+  stores    Store[]
+  createdAt DateTime @default(now())
+}
+
+model Store {
+  id                Int          @id @default(autoincrement())
+  name              String
+  ownerName         String?
+  phone             String?
+  latitude          Float
+  longitude         Float
+  photoUrl          String?
+  zoneId            Int
+  zone              Zone         @relation(fields: [zoneId], references: [id])
+  addressNotes      String?
+  debt              Float        @default(0.0)
+  preferredCharcoal String       @default("فحم شيشة درجة أولى")
+  assignedDay       String       @default("Sunday") // Sunday, Monday, etc.
+  revisitCycleDays  Int          @default(14)
+  nextVisitDate     DateTime?
+  contractedRepId   Int?
+  contractedRep     User?        @relation("RepStores", fields: [contractedRepId], references: [id])
+  createdAt         DateTime     @default(now())
+
+  stops             RouteStop[]
+  visits            Visit[]
+  conflicts         ConflictLog[]
+}
+
+model DailyRoute {
+  id        Int         @id @default(autoincrement())
+  repId     Int
+  rep       User        @relation(fields: [repId], references: [id])
+  date      String      // YYYY-MM-DD
+  dayName   String      // الأحد، الإثنين...
+  status    String      @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  originLat Float?
+  originLng Float?
+  createdAt DateTime    @default(now())
+
+  stops     RouteStop[]
+}
+
+model RouteStop {
+  id            Int        @id @default(autoincrement())
+  routeId       Int
+  route         DailyRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  storeId       Int
+  store         Store      @relation(fields: [storeId], references: [id])
+  sequenceOrder Int
+  status        String     @default("PENDING") // PENDING, CURRENT, VISITED, SKIPPED
+  isAdHoc       Boolean    @default(false)
+  skipReason    String?
+  skippedAt     DateTime?
+  completedAt   DateTime?
+
+  visits        Visit[]
+}
+
+model Visit {
+  id             Int        @id @default(autoincrement())
+  storeId        Int
+  store          Store      @relation(fields: [storeId], references: [id])
+  repId          Int
+  rep            User       @relation(fields: [repId], references: [id])
+  routeStopId    Int?
+  routeStop      RouteStop? @relation(fields: [routeStopId], references: [id])
+  photoUrl       String?
+  latitude       Float?
+  longitude      Float?
+  distanceMeters Float      @default(0)
+  isOutOfRange   Boolean    @default(false)
+  charcoalBags   Int        @default(0)
+  charcoalType   String     @default("فحم شيشة")
+  cashCollected  Float      @default(0.0)
+  notes          String?
+  overrideReason String?
+  status         String     @default("APPROVED") // APPROVED, REJECTED, PENDING
+  createdAt      DateTime   @default(now())
+}
+
+model ConflictLog {
+  id             Int      @id @default(autoincrement())
+  storeId        Int
+  store          Store    @relation(fields: [storeId], references: [id])
+  repId          Int
+  rep            User     @relation("RepConflicts", fields: [repId], references: [id])
+  priorRepId     Int
+  priorRep       User     @relation("PriorRepConflicts", fields: [priorRepId], references: [id])
+  priorVisitDate DateTime
+  overrideReason String
+  createdAt      DateTime @default(now())
+}
