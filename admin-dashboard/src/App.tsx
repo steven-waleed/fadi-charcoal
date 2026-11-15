@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import L from 'leaflet';
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 type TabType = 'fleet' | 'planner' | 'audit' | 'conflicts' | 'stores' | 'skips' | 'eod';
 

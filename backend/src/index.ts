@@ -30,6 +30,15 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Health check for Cloud Hosting
+app.get('/', (req: Request, res: Response) => {
+  res.json({ success: true, service: 'Fadi Charcoal Cloud API', status: 'healthy', time: new Date() });
+});
+
+app.get('/api/health', (req: Request, res: Response) => {
+  res.json({ success: true, service: 'Fadi Charcoal Cloud API', status: 'healthy', time: new Date() });
+});
+
 // Haversine Distance (in meters)
 function getDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
   if (!lat1 || !lon1 || !lat2 || !lon2) return 0;

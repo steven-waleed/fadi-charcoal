@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: fadi-charcoal-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+      - key: DIRECT_URL
+        value: postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
+      - key: NODE_VERSION
+        value: 20
