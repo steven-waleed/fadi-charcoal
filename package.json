@@ -1,0 +1,22 @@
+{
+  "name": "sales-rep-gps-system",
+  "version": "1.0.0",
+  "description": "نظام المندوبين وتتبع نقاط البيع الجغرافية وإدارة خطوط السير",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "gps",
+    "sales",
+    "routes",
+    "tracking"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "pg": "^8.23.1"
+  }
+}

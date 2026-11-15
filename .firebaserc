@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "fadi-charcoal-app"
+  },
+  "targets": {
+    "fadi-charcoal-app": {
+      "hosting": {
+        "mobile": [
+          "fadi-charcoal-app"
+        ],
+        "admin": [
+          "fadi-charcoal-admin"
+        ]
+      }
+    }
+  }
+}

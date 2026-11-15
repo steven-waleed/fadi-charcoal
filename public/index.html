@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام مسارات المندوبين ونقاط البيع GPS | Enterprise</title>
+  
+  <!-- خط Cairo الاحترافي الموحد -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS للخرائط -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- إعدادات PWA وتطبيق الهاتف للأندرويد والآيفون -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="المندوب GPS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- شريط العنوان الرئيسي والتنقل (Executive Header) -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-badge">📍</div>
+        <div>
+          <h1>منظومة مسارات المندوبين والرقابة الجغرافية</h1>
+          <p>إدارة نقاط البيع، التذكير الأسبوعي، وكشف التلاعب الميداني بالـ GPS</p>
+        </div>
+      </div>
+
+      <!-- التبديل بين واجهة المندوب ولوحة تحكم المالك وزر التثبيت -->
+      <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+        <button class="btn" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem;" onclick="showQrModal()">
+          📷 باركود الموبايل
+        </button>
+        <button class="btn" id="btnInstallApp" style="background: #f59e0b; color: #0f172a; font-weight: 800; padding: 0.55rem 1rem; border-radius: 9px; font-size: 0.88rem; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);" onclick="promptInstallApp()">
+          📲 تثبيت التطبيق
+        </button>
+        <div class="tabs-switch">
+          <button class="tab-btn active" id="tabBtnRep" onclick="switchTab('rep')">
+            📱 واجهة المندوب (الميدان)
+          </button>
+          <button class="tab-btn" id="tabBtnOwner" onclick="switchTab('owner')">
+            🖥️ لوحة تحكم المالك (الإدارة)
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- ============================================== -->
+    <!-- 1. واجهة المندوب (REP MOBILE VIEW)             -->
+    <!-- ============================================== -->
+    <section id="repSection" class="view-section active">
+      
+      <!-- شريط تحديد المندوب -->
+      <div class="rep-selector-bar">
+        <label for="repSelect" style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">👤 المندوب النشط:</label>
+        <select id="repSelect" class="form-control" style="max-width: 260px;" onchange="loadRepData()">
+          <!-- يُملأ برمجياً -->
+        </select>
+        <button class="btn btn-outline" onclick="loadRepData()" title="تحديث البيانات">🔄 تحديث</button>
+      </div>
+
+      <!-- بطاقة اليوم الذكية (التذكير التلقائي) -->
+      <div class="today-banner">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 id="todayBannerTitle">📅 خط سير اليوم: جاري التحميل...</h2>
+            <p id="todayBannerDate" style="font-size: 0.88rem; opacity: 0.9;">التاريخ الحالي</p>
+          </div>
+          <div style="font-size: 1.8rem; background: rgba(255,255,255,0.18); padding: 0.5rem 0.9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+            🔔
+          </div>
+        </div>
+        <div class="today-stats-grid">
+          <div class="stat-pill">
+            <div class="number" id="todayTotalCount">0</div>
+            <div class="label">إجمالي محلات اليوم</div>
+          </div>
+          <div class="stat-pill">
+            <div class="number" id="todayVisitedCount">0</div>
+            <div class="label">تمت زيارتها ✅</div>
+          </div>
+          <div class="stat-pill">
+            <div class="number" id="todayPendingCount">0</div>
+            <div class="label">المتبقية ⏳</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- بطاقة إضافة نقطة بيع جديدة -->
+      <div class="card" style="border: 2px dashed #93c5fd; background: #f8fbff;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3 style="color: #1e3a8a; font-size: 1.15rem; font-weight: 800; margin-bottom: 0.2rem;">📍 أنت أمام محل جديد الآن؟</h3>
+            <p style="color: #475569; font-size: 0.88rem;">سجل المحل بضغطة زر ليتم حفظ موقعه بالـ GPS وجدولته أسبوعياً</p>
+          </div>
+          <button class="btn btn-primary" onclick="toggleAddStoreForm()">
+            ➕ تسجيل محل جديد
+          </button>
+        </div>
+
+        <!-- استمارة إضافة محل جديد (مخفية وتفتح بالضغط) -->
+        <div id="addStoreFormWrapper" style="display: none; margin-top: 1.4rem; padding-top: 1.4rem; border-top: 1px solid #dbeafe;">
+          <form id="addStoreForm" onsubmit="handleSaveStore(event)">
+            <div class="gps-box" id="gpsStatusBox">
+              <div id="gpsStatusText" style="color: #64748b; font-weight: 700; margin-bottom: 0.6rem; font-size: 0.92rem;">
+                📍 لم يتم التقاط إحداثيات GPS بعد
+              </div>
+              <button type="button" class="btn btn-gps" id="btnCaptureGps" onclick="captureCurrentLocation()">
+                📡 التقاط موقعي الحالي بالـ GPS بدقة عالية
+              </button>
+              <div id="gpsCoordsDisplay" style="margin-top: 0.6rem; font-family: monospace; font-size: 0.88rem; color: #047857; font-weight: 600;"></div>
+
+              <!-- خريطة مصغرة لتأكيد وتدقيق الموقع بالسحب والإفلات -->
+              <div id="pickerSearchWrapper" style="display: none; margin-top: 10px; margin-bottom: 8px;">
+                <div style="display: flex; gap: 6px;">
+                  <input type="text" id="mapSearchInput" class="form-control" placeholder="🔍 أو اكتب اسم المنطقة للبحث (مثال: الكيلاني، شارع الشيخ عمر...)" onkeydown="if(event.key==='Enter'){event.preventDefault();searchMapLocation();}">
+                  <button type="button" class="btn btn-primary" style="white-space: nowrap; padding: 0.5rem 1rem;" onclick="searchMapLocation()">بحث 🔎</button>
+                </div>
+              </div>
+              <div id="pickerMap" style="height: 260px; border-radius: 12px; margin-top: 8px; border: 1px solid #cbd5e1; display: none;"></div>
+              <div id="pickerMapHint" style="display: none; font-size: 0.82rem; color: #1e40af; background: #eff6ff; padding: 8px 12px; border-radius: 8px; margin-top: 8px; text-align: center; border: 1px solid #bfdbfe;">
+                💡 <b>ملاحظة:</b> يمكنك سحب الدبوس بالماوس أو النقر على مكانك الصحيح بالخريطة لضبط الموقع بدقة متناهية.
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>اسم المحل / الماركت *</label>
+                <input type="text" id="storeName" class="form-control" placeholder="مثال: أسواق الأمانة" required>
+              </div>
+
+              <div class="form-group">
+                <label>اسم صاحب المحل / المسؤول</label>
+                <input type="text" id="storeOwner" class="form-control" placeholder="مثال: أبو عمر">
+              </div>
+
+              <div class="form-group">
+                <label>رقم هاتف المحل</label>
+                <input type="tel" id="storePhone" class="form-control" placeholder="07xxxxxxxx">
+              </div>
+
+              <div class="form-group">
+                <label>يوم الزيارة الأسبوعي الدوري (التذكير) *</label>
+                <select id="storeAssignedDay" class="form-control">
+                  <option value="Sunday">الأحد (تذكير كل أحد)</option>
+                  <option value="Monday">الإثنين (تذكير كل إثنين)</option>
+                  <option value="Tuesday">الثلاثاء (تذكير كل ثلاثاء)</option>
+                  <option value="Wednesday">الأربعاء (تذكير كل أربعاء)</option>
+                  <option value="Thursday">الخميس (تذكير كل خميس)</option>
+                  <option value="Friday">الجمعة (تذكير كل جمعة)</option>
+                  <option value="Saturday">السبت (تذكير كل سبت)</option>
+                </select>
+                <small style="color: #64748b; font-size: 0.75rem;">(افتراضياً نفس يوم اليوم ليتم تذكيرك الأسبوع القادم تلقائياً)</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>ملاحظات العنوان / معلم مميز</label>
+              <input type="text" id="storeNotes" class="form-control" placeholder="مثال: قرب ساحة النسور، مقابل الصيدلية">
+            </div>
+
+            <!-- حقول خفية للإحداثيات -->
+            <input type="hidden" id="storeLat">
+            <input type="hidden" id="storeLng">
+
+            <div style="display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.25rem;">
+              <button type="button" class="btn btn-outline" onclick="toggleAddStoreForm()">إلغاء</button>
+              <button type="submit" class="btn btn-success" id="btnSubmitStore" disabled>💾 حفظ المحل وتثبيت الـ GPS</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- قائمة محلات خط السير اليومية -->
+      <div class="card">
+        <div class="card-title">
+          <span>📋 قائمة محلات خط السير لليوم</span>
+          <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">اضغط "تسجيل وصول" عند وصولك لكل محل</span>
+        </div>
+
+        <div id="todayStoresList" class="stores-list">
+          <!-- تُملأ برمجياً -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 2. لوحة تحكم المالك (OWNER DASHBOARD)          -->
+    <!-- ============================================== -->
+    <section id="ownerSection" class="view-section">
+      
+      <!-- إحصائيات عامة للمالك (Enterprise KPI Metrics) -->
+      <div class="owner-metrics">
+        <div class="metric-card card-blue">
+          <div class="val" id="metricTotalStores">0</div>
+          <div class="title">🏪 إجمالي نقاط البيع</div>
+        </div>
+        <div class="metric-card card-green">
+          <div class="val" id="metricTodayTarget">0</div>
+          <div class="title">🎯 المجدولة لزيارة اليوم</div>
+        </div>
+        <div class="metric-card card-purple">
+          <div class="val" id="metricTodayCompleted">0</div>
+          <div class="title">✅ الزيارات المنجزة اليوم</div>
+        </div>
+        <div class="metric-card card-amber">
+          <div class="val" id="metricComplianceRate">100%</div>
+          <div class="title">🛡️ نسبة الانضباط بالـ GPS</div>
+        </div>
+        <div class="metric-card card-red">
+          <div class="val" id="metricSuspiciousVisits" style="color: #dc2626;">0</div>
+          <div class="title" style="color: #991b1b;">⚠️ زيارات مشبوهة خارج النطاق</div>
+        </div>
+      </div>
+
+      <!-- تبويبات فرعية داخل لوحة تحكم المالك -->
+      <div style="display: flex; gap: 0.6rem; margin-bottom: 1.25rem;">
+        <button class="filter-pill-btn active" id="subTabMapBtn" onclick="switchOwnerSubTab('map')">
+          🗺️ الخريطة وقاعدة نقاط البيع
+        </button>
+        <button class="filter-pill-btn" id="subTabAuditBtn" onclick="switchOwnerSubTab('audit')">
+          🛡️ سجل تدقيق الزيارات وكشف التلاعب (Geofence Audit)
+        </button>
+      </div>
+
+      <!-- عرض الخريطة وقاعدة البيانات -->
+      <div id="ownerMapView">
+        <div class="card">
+          <div class="card-title">
+            <span>🗺️ خريطة نقاط البيع ومسارات المندوبين الجغرافية</span>
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+              <button class="btn btn-outline" onclick="refreshOwnerMap()">🔄 تحديث الخريطة</button>
+              <a href="/api/export/csv" class="btn btn-primary" download>📥 تصدير قاعدة البيانات (Excel/CSV)</a>
+            </div>
+          </div>
+          
+          <!-- شريط فلترة الخريطة -->
+          <div style="display: flex; gap: 0.85rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+            <div style="min-width: 170px;">
+              <select id="filterDay" class="form-control" onchange="loadOwnerStores()">
+                <option value="">جميع الأيام</option>
+                <option value="Sunday">مسار الأحد</option>
+                <option value="Monday">مسار الإثنين</option>
+                <option value="Tuesday">مسار الثلاثاء</option>
+                <option value="Wednesday">مسار الأربعاء</option>
+                <option value="Thursday">مسار الخميس</option>
+                <option value="Friday">مسار الجمعة</option>
+                <option value="Saturday">مسار السبت</option>
+              </select>
+            </div>
+            <div style="min-width: 170px;">
+              <select id="filterRep" class="form-control" onchange="loadOwnerStores()">
+                <option value="">جميع المندوبين</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 220px;">
+              <input type="text" id="filterSearch" class="form-control" placeholder="بحث باسم المحل أو المالك أو الهاتف..." onkeyup="debounceSearch()">
+            </div>
+          </div>
+
+          <!-- الخريطة -->
+          <div id="map"></div>
+        </div>
+
+        <!-- جدول قاعدة البيانات الدائمة للمالك -->
+        <div class="card">
+          <div class="card-title">
+            <span>📊 سجل نقاط البيع الدائمة (قاعدة بيانات الأونر)</span>
+            <span id="storesCountBadge" style="font-size: 0.82rem; background: #eff6ff; color: #1e40af; padding: 0.3rem 0.8rem; border-radius: var(--radius-full); font-weight: 700; border: 1px solid #bfdbfe;">0 محل</span>
+          </div>
+
+          <div class="table-wrapper" tabindex="0" role="region" aria-label="جدول نقاط البيع">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>اسم المحل</th>
+                  <th>المسؤول</th>
+                  <th>الهاتف</th>
+                  <th>اليوم الدوري</th>
+                  <th>إحداثيات GPS</th>
+                  <th>المندوب</th>
+                  <th>آخر زيارة</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="ownerStoresTableBody">
+                <!-- يُملأ برمجياً -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- عرض سجل تدقيق الزيارات وكشف التلاعب (الخيار الذكي) -->
+      <div id="ownerAuditView" style="display: none;">
+        <div class="card" style="border-right: 6px solid #dc2626;">
+          <div class="card-title">
+            <div>
+              <span style="color: #991b1b;">🛡️ سجل التحقق الجغرافي (Geofence Audit Log)</span>
+              <p style="font-size: 0.82rem; color: #64748b; font-weight: normal; margin-top: 0.2rem;">
+                يكشف بدقة متناهية أين كان المندوب يقف بالضبط لحظة تسجيل كل زيارة، والمسافة الفاصلة بينه وبين المحل
+              </p>
+            </div>
+            <div class="filter-pills" style="margin-bottom: 0;">
+              <button class="filter-pill-btn active" id="auditFilterAll" onclick="setAuditFilter('all')">الكل</button>
+              <button class="filter-pill-btn" id="auditFilterValid" onclick="setAuditFilter('valid')">✅ موثقة داخل النطاق (&le; 150م)</button>
+              <button class="filter-pill-btn" id="auditFilterSuspicious" onclick="setAuditFilter('suspicious')" style="color: #dc2626; border-color: #fecaca;">🚨 مشبوهة خارج النطاق (&gt; 150م)</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper" tabindex="0" role="region" aria-label="سجل تدقيق الزيارات">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>اسم المحل</th>
+                  <th>المندوب</th>
+                  <th>التاريخ واليوم</th>
+                  <th>وقت الوصول الفعلي</th>
+                  <th>المسافة عن المحل (التحقق الجغرافي)</th>
+                  <th>الحالة والتدقيق</th>
+                  <th>إجراءات التدقيق</th>
+                </tr>
+              </thead>
+              <tbody id="ownerVisitsAuditTableBody">
+                <!-- يُملأ برمجياً -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- نافذة الباركود لفتح التطبيق على الموبايل -->
+  <div id="qrModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div style="font-size: 2.2rem; margin-bottom: 0.3rem;">📱</div>
+      <h3 style="margin-bottom: 0.4rem; color: #1e3a8a; font-weight: 800;">امسح الباركود بكاميرا الموبايل</h3>
+      <p style="color: #475569; font-size: 0.85rem; margin-bottom: 1rem;">
+        افتح كاميرا هاتفك ووجهها نحو الرمز لفتح التطبيق برابط آمن ومباشر:
+      </p>
+      <div style="background: white; padding: 10px; border-radius: 12px; display: inline-block; border: 2px dashed #2563eb; margin-bottom: 1rem;">
+        <img src="/qrcode.png" alt="QR Code" style="width: 200px; height: 200px; display: block;">
+      </div>
+      <div style="background: #f1f5f9; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-family: monospace; word-break: break-all; margin-bottom: 1.25rem; color: #0f172a; font-weight: bold;">
+        https://treasure-trustee-heel-agency.trycloudflare.com
+      </div>
+      <button class="btn btn-primary" style="width: 100%;" onclick="closeQrModal()">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- نافذة تعليمات التثبيت للآيفون -->
+  <div id="iosInstallModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📲</div>
+      <h3 style="margin-bottom: 0.5rem; color: #1e3a8a; font-weight: 800;">تثبيت التطبيق على جهاز iPhone</h3>
+      <p style="color: #475569; font-size: 0.9rem; margin-bottom: 1.2rem;">
+        لتثبيت التطبيق كأيقونة مستقلة على شاشتك الرئيسية والوصول المباشر للـ GPS:
+      </p>
+      <div style="background: #f8fafc; padding: 1.1rem; border-radius: 10px; text-align: right; font-size: 0.9rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.65rem; border: 1px solid #e2e8f0;">
+        <div><b>1.</b> اضغط على زر المشاركة أسفل متصفح Safari <span style="font-size: 1.1rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">⎋</span> (مربع وسهم لأعلى).</div>
+        <div><b>2.</b> اختر: <br><b>➕ "إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</b>.</div>
+        <div><b>3.</b> اضغط <b>"إضافة" (Add)</b> في أعلى اليمين.</div>
+      </div>
+      <button class="btn btn-primary" style="width: 100%;" onclick="closeIosModal()">فهمت ذلك ✓</button>
+    </div>
+  </div>
+
+  <!-- إشعار Toast منبثق -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
