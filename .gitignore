@@ -6,11 +6,6 @@ node_modules/
 dist/
 */dist/
 
-# Environment files
-.env
-.env.*
-!.env.example
-
 # Database files
 backend/prisma/dev.db
 backend/prisma/dev.db-journal
@@ -32,3 +27,5 @@ yarn-error.log*
 # OS Files
 .DS_Store
 Thumbs.db
+
+.vercel
