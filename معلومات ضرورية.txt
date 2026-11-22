@@ -1,0 +1,26 @@
+==================================================
+بيانات المنظومة والوصول الشامل لمطوري فادي الفهد
+==================================================
+
+1. حساب الفايربيس (Firebase) والجيتهب:
+   - الإيميل: stevo199380@gmail.com
+   - مشروع الفايربيس: fadi-charcoal-app
+
+2. قاعدة بيانات Supabase السحابية (PostgreSQL):
+   - كلمة مرور قاعدة البيانات: FadiCharcoal2026!
+   - رابط الاتصال (Pooler 6543):
+     postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+   - رابط الاتصال المباشر (Direct 5432):
+     postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
+
+3. حسابات النظام للتجربة والتطوير:
+   - الإدارة: admin / admin (أو 07700000000 / admin)
+   - المندوب 1: حيدر الكرخي (07702222222 / 123)
+   - المندوب 2: أحمد التميمي (07701111111 / 123)
+   - المندوب 3: عمر الزيدي (07703333333 / 123)
+
+4. السيرفر السحابي (Vercel API):
+   - https://fadi-charcoal-api.vercel.app
+
+ملاحظة أمنية: توكن الجيتهب يتم مشاركته بشكل خاص بين المطورين ولا يُرفع داخل كود المستودع لأن خوارزميات حماية الجيتهب (GitHub Push Protection) تمنع رفع توكنات GitHub داخل المستودع تلقائياً.
+==================================================
