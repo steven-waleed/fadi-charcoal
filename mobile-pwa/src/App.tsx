@@ -666,20 +666,20 @@ export default function App() {
   // =========================================================================
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-cairo flex items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl shadow-slate-200/80 border border-slate-200/90 overflow-hidden">
+      <div className="min-h-screen bg-opdc-radial bg-opdc-dots text-slate-900 font-cairo flex items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-white rounded-[24px] shadow-opdc border border-[#edf1f3] overflow-hidden">
           
           {/* Executive Header matching برنامج النقوصات */}
-          <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 px-6 pt-7 pb-6 text-white text-center relative overflow-hidden border-b border-slate-800">
+          <div className="bg-gradient-to-br from-[#0a3325] via-[#0E4D38] to-[#16654a] px-6 pt-7 pb-6 text-white text-center relative overflow-hidden border-b-4 border-[#D4AF37]">
             <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-amber-500/10 blur-2xl pointer-events-none" />
             <div className="absolute -left-8 -top-8 w-32 h-32 rounded-full bg-sky-500/10 blur-2xl pointer-events-none" />
             
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 mb-3 shadow-inner">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border-2 border-[#D4AF37] mb-3 shadow-gold-glow">
               <Flame className="w-8 h-8 text-amber-400" />
             </div>
 
             <h1 className="text-xl font-black tracking-tight text-white">فادي لتوزيع الفحم</h1>
-            <p className="text-slate-300 text-xs font-normal max-w-xs mx-auto leading-relaxed mt-1">
+            <p className="text-[#D4AF37] text-xs font-bold max-w-xs mx-auto leading-relaxed mt-1">
               نظام تتبع وحفظ العملاء الميداني • بوابة المندوب
             </p>
           </div>
@@ -727,7 +727,7 @@ export default function App() {
               <button
                 type="submit"
                 disabled={loggingIn}
-                className="w-full py-3 bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black rounded-xl shadow-md flex items-center justify-center gap-2 transition text-sm mt-3"
+                className="w-full py-3.5 bg-gradient-to-r from-[#0E4D38] via-[#115e45] to-[#16654a] hover:from-[#0a3325] hover:to-[#0E4D38] text-white font-black rounded-xl shadow-opdc-btn flex items-center justify-center gap-2 transition text-sm mt-3 border-t border-emerald-400/30"
               >
                 {loggingIn ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -805,7 +805,7 @@ export default function App() {
 
       {/* Top Header matching Header.jsx from برنامج النقوصات */}
       <header
-        className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs"
+        className="sticky top-0 z-40 bg-gradient-to-r from-[#0a3325] via-[#0E4D38] to-[#16654a] text-white border-b-4 border-[#D4AF37] shadow-lg"
         style={{
           paddingTop: 'max(0.625rem, env(safe-area-inset-top, 0px))',
           paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
@@ -815,14 +815,14 @@ export default function App() {
         <div className="max-w-4xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-between gap-2">
           {/* Brand & System Title */}
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-800 flex items-center justify-center text-amber-400 shadow-xs border border-slate-700/40 shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center text-[#D4AF37] shadow-xs border border-[#D4AF37]/50 shrink-0">
               <Flame className="w-5 h-5 text-amber-400" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight leading-none truncate">
+              <h1 className="text-xs sm:text-sm font-black text-white tracking-tight leading-none truncate">
                 فادي لتوزيع الفحم
               </h1>
-              <p className="text-[10px] font-semibold text-slate-400 mt-0.5 truncate">
+              <p className="text-[10px] font-bold text-[#D4AF37] mt-0.5 truncate">
                 نظام تتبع وحفظ العملاء الميداني
               </p>
             </div>
@@ -831,7 +831,7 @@ export default function App() {
           {/* User Badge, GPS Telemetry & Logout */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Live GPS Telemetry Badge */}
-            <div className="flex items-center gap-1.5 bg-slate-100/90 px-2.5 py-1.5 rounded-xl border border-slate-200/80 text-[11px] font-bold text-slate-700 shadow-2xs">
+            <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/20 text-[11px] font-bold text-white shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -840,7 +840,7 @@ export default function App() {
             </div>
 
             {/* Rep User Badge */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 px-2.5 py-1 rounded-xl text-xs font-bold shadow-2xs">
+            <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md border border-[#D4AF37]/60 px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-2xs">
               <UserIcon className="w-3.5 h-3.5 text-sky-600" />
               <div className="text-right">
                 <span className="text-slate-900 block font-black leading-tight text-[11px] truncate max-w-[80px] xs:max-w-[120px]">
@@ -852,7 +852,7 @@ export default function App() {
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-slate-200/90 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-white/20 bg-white/15 hover:bg-rose-600 text-white flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
               title="تسجيل الخروج"
             >
               <LogOut className="w-4 h-4" />
@@ -863,14 +863,14 @@ export default function App() {
 
       {/* Enterprise Segmented Tabs (3 Views) */}
       <div className="max-w-4xl mx-auto w-full px-3 pt-3">
-        <div className="flex bg-slate-200/70 p-1 gap-1 rounded-2xl border border-slate-200 shadow-2xs">
+        <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs">
           <button
             type="button"
             onClick={() => setActiveTab('ROUTE')}
             className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'ROUTE'
-                ? 'bg-white text-sky-700 shadow-xs border border-slate-200/80'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
             }`}
           >
             <Navigation className="w-3.5 h-3.5 text-sky-600" />
@@ -959,7 +959,7 @@ export default function App() {
           {/* FLOATING NEXT STOP CARD (Point 7 & Waze turn-by-turn navigation) */}
           {activeTab === 'ROUTE' && nextStop && (
             <div className={`mt-3 bg-white border-2 ${
-              nextStop.status === 'SKIPPED' ? 'border-amber-400' : 'border-sky-500'
+              nextStop.status === 'SKIPPED' ? 'border-amber-400' : 'border-[#D4AF37] border-t-4'
             } rounded-3xl p-4 sm:p-5 shadow-lg relative overflow-hidden transition-all`}>
               {/* Header */}
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
@@ -1144,7 +1144,7 @@ export default function App() {
                         isVisited
                           ? 'bg-emerald-50/50 border-emerald-200/80 text-slate-700'
                           : isCurrent
-                          ? 'bg-white border-2 border-sky-500 shadow-sm ring-2 ring-sky-500/10'
+                          ? 'bg-white border-2 border-[#D4AF37] shadow-md ring-4 ring-[#D4AF37]/15'
                           : 'bg-white border-slate-200/90 text-slate-800'
                       }`}
                     >
@@ -1188,7 +1188,7 @@ export default function App() {
                         {!isVisited && (
                           <button
                             onClick={() => handleOpenWaze(stop.store.latitude, stop.store.longitude)}
-                            className="bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-black px-2.5 py-1.5 rounded-xl border border-sky-200 shadow-2xs flex items-center gap-1 transition active:scale-95 cursor-pointer"
+                            className="bg-[#f0f7f3] hover:bg-[#dff0e6] text-[#0E4D38] text-xs font-black px-2.5 py-1.5 rounded-xl border border-[#a4d4bd] shadow-2xs flex items-center gap-1 transition active:scale-95 cursor-pointer"
                           >
                             <Navigation className="w-3.5 h-3.5 text-sky-600" />
                             <span>Waze</span>
@@ -1197,7 +1197,7 @@ export default function App() {
                         {!isVisited && dist <= 20 && (
                           <button
                             onClick={() => openVisitModalForStop(stop)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-xs flex items-center gap-1 transition active:scale-95 cursor-pointer"
+                            className="bg-gradient-to-r from-[#0E4D38] to-[#16654a] hover:from-[#0a3325] hover:to-[#0E4D38] text-white text-xs font-black px-3.5 py-1.5 rounded-xl shadow-opdc-btn border border-[#D4AF37] flex items-center gap-1 transition active:scale-95 animate-pulse cursor-pointer"
                           >
                             <span>{isSkipped ? 'عقد صفقة' : 'توثيق'}</span>
                           </button>

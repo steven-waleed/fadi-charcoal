@@ -263,20 +263,20 @@ export default function AdminApp() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 font-cairo overflow-hidden">
+    <div className="flex h-screen bg-[#f4f6f8] text-slate-900 font-cairo overflow-hidden">
       {/* ========================================================= */}
       {/* SIDEBAR NAVIGATION (RTL Layout)                          */}
       {/* ========================================================= */}
-      <aside className="w-64 bg-slate-900 border-l border-slate-800 flex flex-col justify-between p-4 shadow-xl select-none">
+      <aside className="w-64 bg-gradient-to-b from-[#0a3325] via-[#0E4D38] to-[#07241a] text-white border-l-4 border-[#D4AF37] flex flex-col justify-between p-4 shadow-2xl select-none relative">
         <div className="flex flex-col gap-6">
           {/* Brand Logo */}
           <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-500 flex items-center justify-center font-bold text-slate-950 shadow-lg shadow-amber-500/25">
+            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] shadow-gold-glow">
               <Flame className="w-6 h-6 fill-current" />
             </div>
             <div>
-              <h1 className="text-base font-black text-white leading-tight">برنامج الفحم لفادي</h1>
-              <p className="text-[11px] text-amber-500 font-bold">لوحة الإدارة والتحكم (Enterprise)</p>
+              <h1 className="text-base font-black text-[#0E4D38] leading-tight">برنامج الفحم لفادي</h1>
+              <p className="text-[11px] text-[#D4AF37] font-bold">لوحة الإدارة والتحكم (Enterprise)</p>
             </div>
           </div>
 
@@ -286,8 +286,7 @@ export default function AdminApp() {
               onClick={() => setCurrentTab('fleet')}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'fleet'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
               }`}
             >
               <Compass className="w-4 h-4" />
@@ -298,8 +297,7 @@ export default function AdminApp() {
               onClick={() => setCurrentTab('planner')}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'planner'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
               }`}
             >
               <Clock className="w-4 h-4" />
@@ -310,8 +308,7 @@ export default function AdminApp() {
               onClick={() => setCurrentTab('audit')}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'audit'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
               }`}
             >
               <ImageIcon className="w-4 h-4" />
@@ -341,8 +338,7 @@ export default function AdminApp() {
               onClick={() => setCurrentTab('skips')}
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'skips'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
               }`}
             >
               <span className="flex items-center gap-3">
@@ -360,8 +356,7 @@ export default function AdminApp() {
               onClick={() => setCurrentTab('stores')}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'stores'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
               }`}
             >
               <Store className="w-4 h-4" />
@@ -372,8 +367,7 @@ export default function AdminApp() {
               onClick={() => setCurrentTab('eod')}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'eod'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
               }`}
             >
               <BarChart3 className="w-4 h-4" />
@@ -383,7 +377,7 @@ export default function AdminApp() {
         </div>
 
         {/* User Profile & Role Switcher */}
-        <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2">
+        <div className="bg-black/25 border border-white/15 rounded-2xl p-3 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs">
@@ -396,11 +390,11 @@ export default function AdminApp() {
             </div>
           </div>
 
-          <div className="flex gap-1 text-[10px] font-bold bg-slate-900 p-1 rounded-lg">
+          <div className="flex gap-1 text-[10px] font-bold bg-black/30 p-1 rounded-lg border border-white/10">
             <button
               onClick={() => setCurrentRole('ADMIN')}
               className={`flex-1 py-1 rounded transition ${
-                currentRole === 'ADMIN' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400'
+                currentRole === 'ADMIN' ? 'bg-[#D4AF37] text-slate-950 font-black' : 'text-white/70 hover:text-white'
               }`}
             >
               مدير نظام
@@ -408,7 +402,7 @@ export default function AdminApp() {
             <button
               onClick={() => setCurrentRole('SUPERVISOR')}
               className={`flex-1 py-1 rounded transition ${
-                currentRole === 'SUPERVISOR' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400'
+                currentRole === 'SUPERVISOR' ? 'bg-[#D4AF37] text-slate-950 font-black' : 'text-white/70 hover:text-white'
               }`}
             >
               مشرف ميداني
@@ -420,44 +414,44 @@ export default function AdminApp() {
       {/* ========================================================= */}
       {/* MAIN CONTENT AREA                                         */}
       {/* ========================================================= */}
-      <main className="flex-1 flex flex-col overflow-y-auto bg-slate-950">
+      <main className="flex-1 flex flex-col overflow-y-auto bg-[#f4f6f8] text-slate-900">
         {/* Top Executive Stats Bar */}
-        <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-3 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#edf1f3] px-6 py-3.5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-6">
             <div>
-              <span className="text-xs text-slate-400">نقاط البيع</span>
-              <div className="text-base font-black text-white">{stats?.totalStores || 15} محل</div>
+              <span className="text-xs font-bold text-slate-500">نقاط البيع</span>
+              <div className="text-base font-black text-[#0E4D38]">{stats?.totalStores || 15} محل</div>
             </div>
-            <div className="w-[1px] h-7 bg-slate-800" />
+            <div className="w-[1px] h-7 bg-[#edf1f3]" />
             <div>
-              <span className="text-xs text-slate-400">المحطات المنجزة اليوم</span>
-              <div className="text-base font-black text-emerald-400">
+              <span className="text-xs font-bold text-slate-500">المحطات المنجزة اليوم</span>
+              <div className="text-base font-black text-[#0E4D38]">
                 {stats?.completedStops || 0} من {stats?.plannedStops || 10}
               </div>
             </div>
-            <div className="w-[1px] h-7 bg-slate-800" />
+            <div className="w-[1px] h-7 bg-[#edf1f3]" />
             <div>
-              <span className="text-xs text-slate-400">أكياس الفحم المبيعة</span>
-              <div className="text-base font-black text-amber-400">{stats?.totalBagsSold || 0} كيس</div>
+              <span className="text-xs font-bold text-slate-500">أكياس الفحم المبيعة</span>
+              <div className="text-base font-black text-[#b89628]">{stats?.totalBagsSold || 0} كيس</div>
             </div>
-            <div className="w-[1px] h-7 bg-slate-800" />
+            <div className="w-[1px] h-7 bg-[#edf1f3]" />
             <div>
-              <span className="text-xs text-slate-400">المقبوضات النقدية</span>
-              <div className="text-base font-black text-emerald-400">
+              <span className="text-xs font-bold text-slate-500">المقبوضات النقدية</span>
+              <div className="text-base font-black text-[#0E4D38]">
                 {(stats?.totalCashCollected || 0).toLocaleString()} د.ع
               </div>
             </div>
-            <div className="w-[1px] h-7 bg-slate-800" />
+            <div className="w-[1px] h-7 bg-[#edf1f3]" />
             <div>
-              <span className="text-xs text-slate-400">انضباط الـ GPS</span>
-              <div className="text-base font-black text-blue-400">{stats?.complianceRate || 100}%</div>
+              <span className="text-xs font-bold text-slate-500">انضباط الـ GPS</span>
+              <div className="text-base font-black text-[#0E4D38]">{stats?.complianceRate || 100}%</div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={fetchAllData}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 rounded-xl border border-slate-700 transition"
+              className="bg-[#f0f7f3] hover:bg-[#dff0e6] text-[#0E4D38] p-2 rounded-xl border border-[#c2e2d4] transition shadow-2xs"
               title="تحديث البيانات"
             >
               <RefreshCw className="w-4 h-4" />
@@ -474,18 +468,18 @@ export default function AdminApp() {
             <div className="flex flex-col gap-4 h-full">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-white">لوحة التتبع المباشر لأسطول توزيع الفحم</h2>
-                  <p className="text-xs text-slate-400">
+                  <h2 className="text-lg font-black text-[#0E4D38]">لوحة التتبع المباشر لأسطول توزيع الفحم</h2>
+                  <p className="text-xs font-bold text-slate-500">
                     متابعة حركة المندوبين، المحطات المنجزة، المحطة الحالية النشطة، ومحطات الطوارئ
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400 font-bold">فلترة حسب المندوب:</span>
+                  <span className="text-xs font-bold text-slate-500 font-bold">فلترة حسب المندوب:</span>
                   <select
                     value={selectedRepFilter}
                     onChange={(e) => setSelectedRepFilter(e.target.value)}
-                    className="bg-slate-900 border border-slate-800 text-xs font-bold text-white rounded-xl px-3 py-1.5 outline-none"
+                    className="bg-slate-900 border border-[#edf1f3] text-xs font-bold text-white rounded-xl px-3 py-1.5 outline-none"
                   >
                     <option value="">جميع المندوبين</option>
                     {reps.map((r) => (
@@ -498,7 +492,7 @@ export default function AdminApp() {
               </div>
 
               {/* Map Legend */}
-              <div className="flex items-center gap-4 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl text-xs">
+              <div className="flex items-center gap-4 bg-slate-900/60 border border-[#edf1f3] px-4 py-2 rounded-xl text-xs">
                 <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
                   <span className="w-3 h-3 rounded-full bg-emerald-500" /> مكتملة (تمت الزيارة)
                 </span>
@@ -516,7 +510,7 @@ export default function AdminApp() {
               {/* Leaflet Map Div */}
               <div
                 ref={mapRef}
-                className="w-full flex-1 min-h-[500px] rounded-2xl border border-slate-800 overflow-hidden shadow-2xl z-10"
+                className="w-full flex-1 min-h-[500px] rounded-2xl border border-[#edf1f3] overflow-hidden shadow-2xl z-10"
               />
             </div>
           )}
@@ -528,8 +522,8 @@ export default function AdminApp() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-white">مخطط المسارات الأسبوعي</h2>
-                  <p className="text-xs text-slate-400">
+                  <h2 className="text-lg font-black text-[#0E4D38]">مخطط المسارات الأسبوعي</h2>
+                  <p className="text-xs font-bold text-slate-500">
                     جدولة المحلات حسب المناطق الجغرافية، وترتيب المسار الأقرب هندسياً
                   </p>
                 </div>
@@ -538,15 +532,15 @@ export default function AdminApp() {
               {liveFleet.map((rep) => {
                 const route = rep.routes?.[0];
                 return (
-                  <div key={rep.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                  <div key={rep.id} className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-5 shadow-xl">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#edf1f3]">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold">
                           {rep.name.charAt(0)}
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-white">{rep.name}</h3>
-                          <p className="text-xs text-slate-400">
+                          <h3 className="text-sm font-bold text-slate-900">{rep.name}</h3>
+                          <p className="text-xs font-bold text-slate-500">
                             خط سير: <b className="text-amber-400">{route?.dayName || 'الأحد'}</b> ({route?.date || 'اليوم'})
                           </p>
                         </div>
@@ -555,7 +549,7 @@ export default function AdminApp() {
                       {route && (
                         <button
                           onClick={() => handleOptimizeRoute(route.id)}
-                          className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition"
+                          className="bg-blue-600 hover:bg-blue-500 text-slate-900 font-bold py-2 px-3 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition"
                         >
                           <ArrowUpDown className="w-3.5 h-3.5" />
                           ترتيب المسار الأقرب جغرافياً (Optimize)
@@ -568,11 +562,11 @@ export default function AdminApp() {
                       {route?.stops?.map((stop: any, idx: number) => (
                         <div
                           key={stop.id}
-                          className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between text-xs"
+                          className="bg-[#f8faf9] border border-[#e2e8f0] rounded-xl shadow-2xs p-3 flex flex-col justify-between text-xs"
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <span className="font-bold text-white block">{stop.store.name}</span>
+                              <span className="font-bold text-slate-900 block">{stop.store.name}</span>
                               <span className="text-[11px] text-slate-400">
                                 مسؤول المحل: {stop.store.ownerName || 'غير مسجل'}
                               </span>
@@ -582,7 +576,7 @@ export default function AdminApp() {
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-900">
+                          <div className="flex items-center justify-between text-[11px] pt-2 border-t border-[#edf1f3]">
                             <span className="text-slate-400 font-mono">تسلسل #{idx + 1}</span>
                             <span
                               className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${
@@ -611,8 +605,8 @@ export default function AdminApp() {
           {currentTab === 'audit' && (
             <div className="flex flex-col gap-4">
               <div>
-                <h2 className="text-lg font-black text-white">تدقيق الزيارات ومعرض الصور الحي</h2>
-                <p className="text-xs text-slate-400">
+                <h2 className="text-lg font-black text-[#0E4D38]">تدقيق الزيارات ومعرض الصور الحي</h2>
+                <p className="text-xs font-bold text-slate-500">
                   فحص واجهات المحلات المصورة، تدقيق دقة الـ GPS، والتحقق المالي من أكياس الفحم والنقدية
                 </p>
               </div>
@@ -623,7 +617,7 @@ export default function AdminApp() {
                   return (
                     <div
                       key={visit.id}
-                      className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between"
+                      className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden shadow-xl flex flex-col justify-between"
                     >
                       {/* Photo Header */}
                       <div className="relative h-48 bg-slate-950 flex items-center justify-center">
@@ -678,12 +672,12 @@ export default function AdminApp() {
                           </span>
                         </div>
 
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs font-bold text-slate-500">
                           المندوب: <b className="text-slate-200">{visit.rep.name}</b> |{' '}
                           {new Date(visit.createdAt).toLocaleTimeString('ar-IQ')}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs">
+                        <div className="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl border border-[#edf1f3] text-xs">
                           <div>
                             <span className="text-slate-400 block text-[11px]">أكياس الفحم:</span>
                             <span className="font-bold text-amber-400">{visit.charcoalBags} كيس</span>
@@ -703,7 +697,7 @@ export default function AdminApp() {
                         )}
 
                         {/* Action buttons */}
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#edf1f3]">
                           <button
                             onClick={() => handleApproveVisit(visit.id, 'APPROVED')}
                             className="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1"
@@ -735,14 +729,14 @@ export default function AdminApp() {
                   <ShieldAlert className="w-5 h-5" />
                   مركز تنبيهات تداخل زيارات المندوبين (Conflict Center)
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs font-bold text-slate-500">
                   سجل المحلات التي قام أكثر من مندوب بزيارتها خلال 48 ساعة وأسباب الاستثناء المقدمة
                 </p>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden shadow-xl">
                 <table className="w-full text-right text-xs">
-                  <thead className="bg-slate-950 text-slate-300 border-b border-slate-800">
+                  <thead className="bg-slate-950 text-slate-300 border-b border-[#edf1f3]">
                     <tr>
                       <th className="p-3">#</th>
                       <th className="p-3">اسم المحل والمنطقة</th>
@@ -765,7 +759,7 @@ export default function AdminApp() {
                         <tr key={c.id} className="hover:bg-slate-800/40 transition">
                           <td className="p-3 font-mono">{idx + 1}</td>
                           <td className="p-3">
-                            <span className="font-bold text-white block">{c.store.name}</span>
+                            <span className="font-bold text-slate-900 block">{c.store.name}</span>
                             <span className="text-[11px] text-blue-400">📍 {c.store.zone?.name || 'بغداد'}</span>
                           </td>
                           <td className="p-3 font-bold text-amber-400">{c.rep.name}</td>
@@ -797,8 +791,8 @@ export default function AdminApp() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-white">إدارة المحلات والمناطق الجغرافية</h2>
-                  <p className="text-xs text-slate-400">
+                  <h2 className="text-lg font-black text-[#0E4D38]">إدارة المحلات والمناطق الجغرافية</h2>
+                  <p className="text-xs font-bold text-slate-500">
                     إضافة وتعديل نقاط البيع في مناطق بغداد وضبط الديون ونوع الفحم المفضل
                   </p>
                 </div>
@@ -811,9 +805,9 @@ export default function AdminApp() {
                 </button>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden shadow-xl">
                 <table className="w-full text-right text-xs">
-                  <thead className="bg-slate-950 text-slate-300 border-b border-slate-800">
+                  <thead className="bg-slate-950 text-slate-300 border-b border-[#edf1f3]">
                     <tr>
                       <th className="p-3">#</th>
                       <th className="p-3">اسم المحل</th>
@@ -884,14 +878,14 @@ export default function AdminApp() {
                   <ArrowRight className="w-5 h-5" />
                   سجل التخطي الميداني (Skipped Stops Feed)
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs font-bold text-slate-500">
                   المحطات التي قام المناديب بتخطيها مع الأسباب وبقائها باللون الأحمر 🔴
                 </p>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden shadow-xl">
                 <table className="w-full text-right text-xs">
-                  <thead className="bg-slate-950 text-slate-300 border-b border-slate-800">
+                  <thead className="bg-slate-950 text-slate-300 border-b border-[#edf1f3]">
                     <tr>
                       <th className="p-3">#</th>
                       <th className="p-3">اسم المحل والمنطقة</th>
@@ -913,7 +907,7 @@ export default function AdminApp() {
                         <tr key={sk.id} className="hover:bg-slate-800/40 transition">
                           <td className="p-3 font-mono">{idx + 1}</td>
                           <td className="p-3">
-                            <span className="font-bold text-white block">{sk.store.name}</span>
+                            <span className="font-bold text-slate-900 block">{sk.store.name}</span>
                             <span className="text-[11px] text-blue-400">📍 {sk.store.zone?.name || 'بغداد'}</span>
                           </td>
                           <td className="p-3 font-bold text-amber-400">{sk.route?.rep?.name || '-'}</td>
@@ -947,15 +941,15 @@ export default function AdminApp() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-white">تقرير نهاية اليوم الإحصائي (End-of-Day)</h2>
-                  <p className="text-xs text-slate-400">
+                  <h2 className="text-lg font-black text-[#0E4D38]">تقرير نهاية اليوم الإحصائي (End-of-Day)</h2>
+                  <p className="text-xs font-bold text-slate-500">
                     مقارنة المخطط بالفعلي، إجمالي مبيعات الفحم، المقبوضات النقدية، والمحطات الطارئة
                   </p>
                 </div>
 
                 <button
                   onClick={() => window.print()}
-                  className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center gap-1.5 border border-slate-700 transition"
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-900 font-bold py-2 px-3 rounded-xl text-xs flex items-center gap-1.5 border border-slate-700 transition"
                 >
                   <Download className="w-3.5 h-3.5" /> طباعة / تصدير التقرير
                 </button>
@@ -963,8 +957,8 @@ export default function AdminApp() {
 
               {/* Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-xs text-slate-400 block mb-1">نسبة إنجاز خط السير</span>
+                <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
+                  <span className="text-xs font-bold text-slate-500 block mb-1">نسبة إنجاز خط السير</span>
                   <div className="text-2xl font-black text-emerald-400">
                     {stats?.plannedStops > 0
                       ? Math.round((stats.completedStops / stats.plannedStops) * 100)
@@ -976,20 +970,20 @@ export default function AdminApp() {
                   </span>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-xs text-slate-400 block mb-1">المحطات الطارئة (Ad-Hoc)</span>
+                <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
+                  <span className="text-xs font-bold text-slate-500 block mb-1">المحطات الطارئة (Ad-Hoc)</span>
                   <div className="text-2xl font-black text-purple-400">{stats?.adHocStops || 0}</div>
                   <span className="text-[11px] text-slate-500 mt-1 block">محطات أضيفت ميدانياً خارج الجدول</span>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-xs text-slate-400 block mb-1">مبيعات أكياس الفحم</span>
+                <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
+                  <span className="text-xs font-bold text-slate-500 block mb-1">مبيعات أكياس الفحم</span>
                   <div className="text-2xl font-black text-amber-400">{stats?.totalBagsSold || 0} كيس</div>
                   <span className="text-[11px] text-slate-500 mt-1 block">شيشة ليمون + مشاوي خشن</span>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-xs text-slate-400 block mb-1">إجمالي النقدية المقبوضة</span>
+                <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
+                  <span className="text-xs font-bold text-slate-500 block mb-1">إجمالي النقدية المقبوضة</span>
                   <div className="text-2xl font-black text-emerald-400">
                     {(stats?.totalCashCollected || 0).toLocaleString()} د.ع
                   </div>
@@ -1008,9 +1002,9 @@ export default function AdminApp() {
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
           <form
             onSubmit={handleCreateStore}
-            className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl flex flex-col gap-3"
+            className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-6 max-w-md w-full shadow-2xl flex flex-col gap-3"
           >
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-[#edf1f3] pb-3">
               <h3 className="text-base font-extrabold text-white">إضافة نقطة بيع جديدة إلى الخريطة</h3>
               <button
                 type="button"
@@ -1112,7 +1106,7 @@ export default function AdminApp() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#edf1f3]">
               <button
                 type="button"
                 onClick={() => setNewStoreModal(false)}

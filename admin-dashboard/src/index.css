@@ -2,24 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --opdc-green-dark: #0a3325;
+  --opdc-green: #0E4D38;
+  --opdc-green-light: #16654a;
+  --opdc-gold: #D4AF37;
+  --opdc-gold-dark: #b89628;
+  --opdc-bg: #f4f6f8;
+  --opdc-card-bg: #ffffff;
+  --opdc-border: #edf1f3;
+  --opdc-input-border: #dce2e6;
+  --opdc-badge-bg: #f0f7f3;
+  --opdc-badge-border: #c2e2d4;
+}
+
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
   body {
-    @apply bg-slate-950 text-slate-100 font-cairo;
+    font-family: 'Cairo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-color: var(--opdc-bg);
+    color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom scrollbars */
+/* Subtle OPDC Dot Matrix Pattern */
+.bg-opdc-dots {
+  background-image: radial-gradient(rgba(212, 175, 55, 0.12) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.bg-opdc-radial {
+  background: radial-gradient(circle at 50% 20%, #0d4331 0%, #0a3325 50%, #061c14 100%);
+}
+
+/* Custom smooth enterprise scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #0E4D38;
 }

@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --opdc-green-dark: #0a3325;
+  --opdc-green: #0E4D38;
+  --opdc-green-light: #16654a;
+  --opdc-gold: #D4AF37;
+  --opdc-gold-dark: #b89628;
+  --opdc-bg: #f4f6f8;
+  --opdc-card-bg: #ffffff;
+  --opdc-border: #edf1f3;
+  --opdc-input-border: #dce2e6;
+  --opdc-badge-bg: #f0f7f3;
+  --opdc-badge-border: #c2e2d4;
+}
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
@@ -12,15 +26,25 @@
     min-height: 100dvh;
     min-height: 100svh;
     overflow-x: hidden;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--opdc-bg);
+    color: #1e293b;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     user-select: none;
   }
 }
 
-/* Custom smooth enterprise scrollbar (matching برنامج النقوصات) */
+/* Subtle OPDC Dot Matrix Pattern */
+.bg-opdc-dots {
+  background-image: radial-gradient(rgba(212, 175, 55, 0.12) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.bg-opdc-radial {
+  background: radial-gradient(circle at 50% 20%, #0d4331 0%, #0a3325 50%, #061c14 100%);
+}
+
+/* Custom smooth enterprise scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -33,7 +57,7 @@
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #0E4D38;
 }
 
 /* Clean animations */
