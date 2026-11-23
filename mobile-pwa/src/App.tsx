@@ -1691,21 +1691,6 @@ export default function App() {
                 />
               </div>
 
-              <div>
-                <label className="block text-slate-700 font-black mb-1.5">نوع الفحم المفضل</label>
-                <select
-                  value={newStoreCharcoal}
-                  onChange={(e) => setNewStoreCharcoal(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 font-medium text-xs focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none shadow-2xs transition"
-                >
-                  <option value="فحم شيشة درجة أولى">فحم شيشة درجة أولى</option>
-                  <option value="فحم شيشة ليمون ممتاز">فحم شيشة ليمون ممتاز</option>
-                  <option value="فحم شيشة جوز هند">فحم شيشة جوز هند</option>
-                  <option value="فحم مشاوي سندي نخب أول">فحم مشاوي سندي نخب أول</option>
-                  <option value="فحم أقراص سريع الاشتعال">فحم أقراص سريع الاشتعال</option>
-                </select>
-              </div>
-
               {/* Locked Coordinates Info with Simulator */}
               <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col gap-1.5 text-xs shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1788,29 +1773,10 @@ export default function App() {
                       max={365}
                       value={newStoreRevisitCycle}
                       onChange={(e) => setNewStoreRevisitCycle(Math.max(1, Number(e.target.value) || 1))}
-                      className="w-12 text-center font-black text-[#0E4D38] text-sm focus:outline-none"
+                      className="w-14 text-center font-black text-[#0E4D38] text-sm focus:outline-none"
                     />
                     <span className="text-[11px] font-bold text-slate-500">يوم</span>
                   </div>
-                </div>
-
-                {/* Fast Presets: 4 days, 7 days, 14 days, 20 days, 30 days */}
-                <div className="flex items-center gap-1.5 flex-wrap mb-2">
-                  <span className="text-[10px] text-slate-500 font-bold">خيارات سريعة:</span>
-                  {[4, 7, 14, 20, 30].map((days) => (
-                    <button
-                      key={days}
-                      type="button"
-                      onClick={() => setNewStoreRevisitCycle(days)}
-                      className={`text-[11px] px-2.5 py-1 rounded-lg font-black transition active:scale-95 cursor-pointer ${
-                        newStoreRevisitCycle === days
-                          ? 'bg-[#0E4D38] text-white border border-[#D4AF37] shadow-xs'
-                          : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                      }`}
-                    >
-                      {days} {days <= 10 ? 'أيام' : 'يوماً'}
-                    </button>
-                  ))}
                 </div>
 
                 <div className="text-[11px] text-[#0E4D38] font-bold bg-white/70 p-2 rounded-xl border border-[#c2e2d4]/60">

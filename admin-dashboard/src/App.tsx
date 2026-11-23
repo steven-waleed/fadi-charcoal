@@ -963,7 +963,7 @@ export default function AdminApp() {
                 <div>
                   <h2 className="text-lg font-black text-[#0E4D38]">إدارة المحلات والمناطق الجغرافية</h2>
                   <p className="text-xs font-bold text-slate-500">
-                    إضافة وتعديل نقاط البيع في مناطق بغداد وضبط الديون ونوع الفحم المفضل
+                    إضافة وتعديل نقاط البيع وتعيين دورة إعادة الزيارة المخصصة لكل محل
                   </p>
                 </div>
 
@@ -977,7 +977,7 @@ export default function AdminApp() {
 
               <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto w-full">
-                  <table className="w-full min-w-[950px] text-right text-xs">
+                  <table className="w-full min-w-[750px] text-right text-xs">
                     <thead className="bg-[#0E4D38] text-white">
                       <tr>
                         <th className="p-3 font-black">#</th>
@@ -985,10 +985,8 @@ export default function AdminApp() {
                         <th className="p-3 font-black">المنطقة</th>
                         <th className="p-3 font-black">المسؤول والهاتف</th>
                         <th className="p-3 font-black">المندوب المتعاقد</th>
-                        <th className="p-3 font-black">دورة التكرار (Admin Only)</th>
+                        <th className="p-3 font-black">دورة التكرار (أيام)</th>
                         <th className="p-3 font-black">الزيارة القادمة</th>
-                        <th className="p-3 font-black">الديون المستحقة</th>
-                        <th className="p-3 font-black">نوع الفحم المفضل</th>
                         <th className="p-3 font-black">الإحداثيات GPS</th>
                       </tr>
                     </thead>
@@ -1010,64 +1008,40 @@ export default function AdminApp() {
                             {s.contractedRep?.name || 'غير محدد'}
                           </td>
                           <td className="p-3">
-                            <div className="flex flex-col gap-1.5 min-w-[135px]">
-                              <div className="flex items-center gap-1">
-                                <input
-                                  type="number"
-                                  min={1}
-                                  max={365}
-                                  defaultValue={s.revisitCycleDays || 14}
-                                  id={`cycle-input-${s.id}`}
-                                  className="w-14 bg-white border border-[#c2e2d4] text-[#0E4D38] font-black px-1.5 py-1 rounded-lg text-xs text-center focus:ring-2 focus:ring-[#0E4D38] shadow-2xs"
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      const val = Number((e.target as HTMLInputElement).value);
-                                      if (val > 0) handleUpdateCycle(s.id, val);
-                                    }
-                                  }}
-                                />
-                                <span className="text-[11px] font-bold text-slate-600">يوم</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const input = document.getElementById(`cycle-input-${s.id}`) as HTMLInputElement;
-                                    if (input && Number(input.value) > 0) {
-                                      handleUpdateCycle(s.id, Number(input.value));
-                                    }
-                                  }}
-                                  className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] px-2 py-1 rounded-lg text-[10px] font-black border border-[#D4AF37] transition active:scale-95 shadow-2xs cursor-pointer"
-                                  title="حفظ عدد الأيام المخصص"
-                                >
-                                  حفظ 💾
-                                </button>
-                              </div>
-                              {/* Fast Presets: 4, 7, 14, 20, 30 days */}
-                              <div className="flex items-center gap-1 flex-wrap">
-                                {[4, 7, 14, 20, 30].map((d) => (
-                                  <button
-                                    key={d}
-                                    type="button"
-                                    onClick={() => handleUpdateCycle(s.id, d)}
-                                    className={`text-[9px] px-1.5 py-0.5 rounded font-black border transition cursor-pointer ${
-                                      (s.revisitCycleDays || 14) === d
-                                        ? 'bg-[#0E4D38] text-white border-[#D4AF37]'
-                                        : 'bg-[#f0f7f3] text-slate-700 hover:bg-[#c2e2d4] border-slate-300'
-                                    }`}
-                                    title={`تعيين كل ${d} أيام`}
-                                  >
-                                    {d}ي
-                                  </button>
-                                ))}
-                              </div>
+                            <div className="flex items-center gap-1.5 min-w-[130px]">
+                              <input
+                                type="number"
+                                min={1}
+                                max={365}
+                                defaultValue={s.revisitCycleDays || 14}
+                                id={`cycle-input-${s.id}`}
+                                className="w-16 bg-white border border-[#c2e2d4] text-[#0E4D38] font-black px-2 py-1 rounded-xl text-xs text-center focus:ring-2 focus:ring-[#0E4D38] shadow-2xs"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    const val = Number((e.target as HTMLInputElement).value);
+                                    if (val > 0) handleUpdateCycle(s.id, val);
+                                  }
+                                }}
+                              />
+                              <span className="text-[11px] font-bold text-slate-600">يوم</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const input = document.getElementById(`cycle-input-${s.id}`) as HTMLInputElement;
+                                  if (input && Number(input.value) > 0) {
+                                    handleUpdateCycle(s.id, Number(input.value));
+                                  }
+                                }}
+                                className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] px-2.5 py-1 rounded-xl text-[10px] font-black border border-[#D4AF37] transition active:scale-95 shadow-2xs cursor-pointer"
+                                title="حفظ عدد الأيام"
+                              >
+                                حفظ 💾
+                              </button>
                             </div>
                           </td>
                           <td className="p-3 font-bold text-emerald-700 font-mono">
                             {s.nextVisitDate ? new Date(s.nextVisitDate).toLocaleDateString('ar-IQ') : 'اليوم'}
                           </td>
-                          <td className="p-3 font-bold text-rose-600">
-                            {s.debt > 0 ? `${s.debt.toLocaleString()} د.ع` : 'لا يوجد'}
-                          </td>
-                          <td className="p-3 text-amber-700 font-bold">{s.preferredCharcoal}</td>
                           <td className="p-3 font-mono text-slate-500 text-[10px]">
                             {s.latitude.toFixed(4)}, {s.longitude.toFixed(4)}
                           </td>
