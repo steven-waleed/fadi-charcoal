@@ -1925,7 +1925,7 @@ export default function App() {
                   </label>
                   <textarea
                     rows={2}
-                    placeholder={isPostponedStop ? 'مثال: تم لقاء صاحب المحل بنجاح وعقد الصفقة لتوريد فحم...' : 'مثال: تم توريد 15 كيس فحم شيشة، وطلب زيارة إضافية الأسبوع القادم...'}
+                    placeholder={isPostponedStop ? 'مثال: تم لقاء صاحب المحل بنجاح وعقد الصفقة لتوريد فحم...' : 'مثال: تم لقاء صاحب المحل واستلام الدفعة النقدية وجدولة الزيارة القادمة...'}
                     value={visitNotes}
                     onChange={(e) => setVisitNotes(e.target.value)}
                     className="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-900 font-medium text-xs focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none shadow-2xs transition"

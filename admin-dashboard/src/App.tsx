@@ -605,7 +605,7 @@ export default function AdminApp() {
             </button>
           </div>
 
-          {/* Row 3: 5 Luxury KPI Cards (Horizontal Scroll on Mobile, Flex on Desktop) */}
+          {/* Row 3: Luxury KPI Cards (Horizontal Scroll on Mobile, Flex on Desktop) */}
           <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
             <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[95px]">
               <span className="text-[10px] font-bold text-slate-500 block">نقاط البيع</span>
@@ -619,12 +619,7 @@ export default function AdminApp() {
               </div>
             </div>
 
-            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[110px]">
-              <span className="text-[10px] font-bold text-slate-500 block">أكياس الفحم المبيعة</span>
-              <div className="text-sm font-black text-[#b89628]">{stats?.totalBagsSold || 0} كيس</div>
-            </div>
-
-            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[115px]">
+            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[125px]">
               <span className="text-[10px] font-bold text-slate-500 block">المقبوضات النقدية</span>
               <div className="text-sm font-black text-[#0E4D38]">
                 {(stats?.totalCashCollected || 0).toLocaleString()} د.ع
@@ -786,7 +781,7 @@ export default function AdminApp() {
               <div>
                 <h2 className="text-lg font-black text-[#0E4D38]">تدقيق الزيارات ومعرض الصور الحي</h2>
                 <p className="text-xs font-bold text-slate-500">
-                  فحص واجهات المحلات المصورة، تدقيق دقة الـ GPS، والتحقق المالي من أكياس الفحم والنقدية
+                  فحص واجهات المحلات المصورة، تدقيق دقة الـ GPS، والتحقق المالي من النقدية المقبوضة
                 </p>
               </div>
 
@@ -856,17 +851,11 @@ export default function AdminApp() {
                           {new Date(visit.createdAt).toLocaleTimeString('ar-IQ')}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 bg-[#f8faf9] p-2.5 rounded-xl border border-slate-200 text-xs">
-                          <div>
-                            <span className="text-slate-500 block text-[11px] font-bold">أكياس الفحم:</span>
-                            <span className="font-black text-[#b89628]">{visit.charcoalBags} كيس</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 block text-[11px] font-bold">المبلغ المستلم:</span>
-                            <span className="font-black text-[#0E4D38]">
-                              {visit.cashCollected.toLocaleString()} د.ع
-                            </span>
-                          </div>
+                        <div className="bg-[#f8faf9] p-2.5 rounded-xl border border-slate-200 text-xs flex items-center justify-between">
+                          <span className="text-slate-600 font-bold text-xs">المبلغ المستلم:</span>
+                          <span className="font-black text-[#0E4D38] text-sm font-mono">
+                            {visit.cashCollected.toLocaleString()} د.ع
+                          </span>
                         </div>
 
                         {visit.notes && (
@@ -1181,7 +1170,7 @@ export default function AdminApp() {
               </div>
 
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
                   <span className="text-xs font-bold text-slate-500 block mb-1">نسبة إنجاز خط السير</span>
                   <div className="text-2xl font-black text-[#0E4D38]">
@@ -1199,12 +1188,6 @@ export default function AdminApp() {
                   <span className="text-xs font-bold text-slate-500 block mb-1">المحطات الطارئة (Ad-Hoc)</span>
                   <div className="text-2xl font-black text-purple-700">{stats?.adHocStops || 0}</div>
                   <span className="text-[11px] text-slate-500 mt-1 block">محطات أضيفت ميدانياً خارج الجدول</span>
-                </div>
-
-                <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
-                  <span className="text-xs font-bold text-slate-500 block mb-1">مبيعات أكياس الفحم</span>
-                  <div className="text-2xl font-black text-[#b89628]">{stats?.totalBagsSold || 0} كيس</div>
-                  <span className="text-[11px] text-slate-500 mt-1 block">شيشة ليمون + مشاوي خشن</span>
                 </div>
 
                 <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
