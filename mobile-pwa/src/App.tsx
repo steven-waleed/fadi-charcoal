@@ -32,8 +32,16 @@ export default function App() {
   const selectedRepId = currentUser?.id || 6;
   const [zones, setZones] = useState<any[]>([]);
   
-  // Views: 'ROUTE' (إظهار مساري لليوم) | 'LOCKED_MAP' (خريطة المتاجر المقفلة) | 'NEW_STORE' (تسجيل متجر جديد)
-  const [activeTab, setActiveTab] = useState<'ROUTE' | 'LOCKED_MAP' | 'NEW_STORE'>('ROUTE');
+  // Views: 'ADMIN_OVERVIEW' (لوحة الإحصائيات) | 'ROUTE' (إظهار مساري لليوم) | 'LOCKED_MAP' (خريطة المتاجر المقفلة) | 'NEW_STORE' (تسجيل متجر جديد)
+  const [activeTab, setActiveTab] = useState<'ADMIN_OVERVIEW' | 'ROUTE' | 'LOCKED_MAP' | 'NEW_STORE'>(() => {
+    try {
+      const saved = localStorage.getItem('fadi_charcoal_rep_user');
+      const u = saved ? JSON.parse(saved) : null;
+      return u?.role === 'ADMIN' ? 'ADMIN_OVERVIEW' : 'ROUTE';
+    } catch {
+      return 'ROUTE';
+    }
+  });
 
   // Route & Stores Data
   const [routeData, setRouteData] = useState<any>(null);
@@ -120,7 +128,7 @@ export default function App() {
       );
       return () => navigator.geolocation.clearWatch(watchId);
     }
-  }, [currentUser]);
+  }, [currentUser, inspectedRepId]);
 
   const fetchRepsList = async () => {
     try {
@@ -259,6 +267,11 @@ export default function App() {
       if (json.success && json.user) {
         resetAllSessionState();
         setCurrentUser(json.user);
+        if (json.user.role === 'ADMIN') {
+          setActiveTab('ADMIN_OVERVIEW');
+        } else {
+          setActiveTab('ROUTE');
+        }
         localStorage.setItem('fadi_charcoal_rep_user', JSON.stringify(json.user));
         showToast(json.message);
       } else {
@@ -712,7 +725,7 @@ export default function App() {
                 <input
                   type="text"
                   required
-                  placeholder="مثال: أحمد التميمي أو 07701111111"
+                  placeholder="مثال: admin أو فادي أو 07700000000"
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
                   className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none shadow-2xs placeholder:text-slate-400"
@@ -750,8 +763,26 @@ export default function App() {
 
             {/* Quick 1-Tap Login helpers for easy phone testing */}
             <div className="mt-6 pt-4 border-t border-slate-100">
-              <span className="text-[11px] text-slate-500 font-bold block mb-2.5 text-center">أو اختر مندوباً للدخول السريع (للاختبار):</span>
+              <span className="text-[11px] text-slate-500 font-bold block mb-2.5 text-center">أو اختر للدخول السريع بضغطة واحدة:</span>
               <div className="space-y-2">
+                {/* 👑 General Manager Quick Login */}
+                <button
+                  type="button"
+                  onClick={() => handleLogin('admin', 'admin')}
+                  className="w-full bg-gradient-to-r from-[#0E4D38]/10 via-[#D4AF37]/25 to-[#0E4D38]/10 hover:from-[#0E4D38]/20 hover:to-[#D4AF37]/40 border-2 border-[#D4AF37] p-3 rounded-2xl text-right flex items-center justify-between text-xs transition shadow-md group active:scale-98"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#D4AF37] to-[#b89628] text-slate-950 flex items-center justify-center font-black shadow-xs text-base">
+                      👑
+                    </span>
+                    <div>
+                      <span className="font-black text-[#0E4D38] block text-xs sm:text-sm">المدير العام (فادي الفهد)</span>
+                      <span className="text-[10px] text-slate-600 font-mono">المستخدم: admin • كلمة المرور: admin</span>
+                    </div>
+                  </div>
+                  <span className="text-[11px] bg-[#0E4D38] text-[#D4AF37] font-black px-3 py-1.5 rounded-xl border border-[#D4AF37] shadow-xs group-hover:scale-105 transition">دخول المدير ⚡</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => handleLogin('07701111111', '123')}
@@ -872,65 +903,332 @@ export default function App() {
       </header>
 
       
-      {/* ========================================================= */}
-      {/* EXECUTIVE ADMIN DASHBOARD BAR (WHEN LOGGED IN AS ADMIN)    */}
-      {/* ========================================================= */}
-      {currentUser?.role === 'ADMIN' && (
-        <div className="max-w-4xl mx-auto w-full px-3 pt-3">
-          <div className="bg-white rounded-2xl border-2 border-[#D4AF37] shadow-opdc p-4 relative overflow-hidden">
-            {/* Header Badge */}
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#edf1f3]">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#D4AF37] to-[#b89628] text-slate-950 flex items-center justify-center font-black shadow-xs">
+      {/* Segmented Navigation Tabs */}
+      <div className="max-w-4xl mx-auto w-full px-3 pt-3">
+        <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs">
+          {currentUser?.role === 'ADMIN' ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab('ADMIN_OVERVIEW')}
+                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'ADMIN_OVERVIEW'
+                    ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                }`}
+              >
+                <span>📊 لوحة الإحصائيات</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('ROUTE')}
+                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'ROUTE'
+                    ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                }`}
+              >
+                <Navigation className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span>🗺️ مراقبة المندوبين</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('LOCKED_MAP')}
+                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'LOCKED_MAP'
+                    ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-500" />
+                <span>المتاجر المقفلة ({lockedStores.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('NEW_STORE')}
+                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'NEW_STORE'
+                    ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                }`}
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-emerald-500" />
+                <span>➕ متجر جديد</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab('ROUTE')}
+                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'ROUTE'
+                    ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                }`}
+              >
+                <Navigation className="w-3.5 h-3.5 text-sky-400" />
+                <span>مساري لليوم</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('LOCKED_MAP')}
+                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'LOCKED_MAP'
+                    ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>المتاجر المقفلة ({lockedStores.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('NEW_STORE')}
+                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'NEW_STORE'
+                    ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                }`}
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>عقد صفقة جديدة</span>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* VIEW: ADMIN_OVERVIEW (Executive Dashboard with OPDC Theme) */}
+      {currentUser?.role === 'ADMIN' && activeTab === 'ADMIN_OVERVIEW' && (
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col gap-4 px-3 pt-3">
+          {/* Welcome Executive Card */}
+          <div className="bg-gradient-to-r from-[#0a3325] via-[#0E4D38] to-[#16654a] rounded-3xl p-4 sm:p-6 text-white border-2 border-[#D4AF37] shadow-opdc relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#b89628] text-slate-950 flex items-center justify-center font-black shadow-lg text-2xl">
                   👑
                 </span>
                 <div>
-                  <h2 className="text-sm font-black text-[#0E4D38]">لوحة تحكم المدير العام (فادي الفهد)</h2>
-                  <p className="text-[10px] font-bold text-slate-500">نظرة عامة على الإحصائيات ومراقبة المندوبين الميدانيين</p>
+                  <h2 className="text-base sm:text-lg font-black text-white">
+                    لوحة تحكم المدير العام (فادي الفهد)
+                  </h2>
+                  <p className="text-xs text-[#D4AF37] font-bold mt-0.5">
+                    الإشراف الميداني المركزي • شركة فادي لتوزيع الفحم
+                  </p>
                 </div>
               </div>
               <a
                 href="https://fadi-charcoal-admin.web.app"
                 target="_blank"
                 rel="noreferrer"
-                className="bg-gradient-to-r from-[#0E4D38] to-[#16654a] hover:from-[#0a3325] hover:to-[#0E4D38] text-white text-[11px] font-extrabold px-3 py-1.5 rounded-xl border border-[#D4AF37] shadow-opdc-btn flex items-center gap-1.5 transition active:scale-95"
+                className="bg-gradient-to-r from-[#D4AF37] to-[#b89628] hover:from-[#b89628] hover:to-[#D4AF37] text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl border border-white/30 shadow-md flex items-center gap-2 transition active:scale-95"
               >
-                <span>🖥️ فتح لوحة الكمبيوتر</span>
+                <span>🖥️ فتح لوحة تحكم الكمبيوتر</span>
               </a>
             </div>
+          </div>
 
-            {/* 4 OPDC Luxury KPI Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3.5">
-              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
-                <span className="text-[10px] font-bold text-slate-500 block">إجمالي المتاجر</span>
-                <span className="text-lg font-black text-[#0E4D38]">{adminStats?.totalStores || 17}</span>
-                <span className="text-[9px] text-[#0E4D38] font-bold block">محل مسجل</span>
-              </div>
-
-              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
-                <span className="text-[10px] font-bold text-slate-500 block">المندوبون الميدانيون</span>
-                <span className="text-lg font-black text-[#0E4D38]">{adminStats?.totalReps || 3}</span>
-                <span className="text-[9px] text-[#0E4D38] font-bold block">مندوبين نشطين</span>
-              </div>
-
-              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
-                <span className="text-[10px] font-bold text-slate-500 block">محطات اليوم</span>
-                <span className="text-lg font-black text-[#b89628]">{adminStats?.plannedStops || 10}</span>
-                <span className="text-[9px] text-[#b89628] font-bold block">محطة مجدولة</span>
-              </div>
-
-              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
-                <span className="text-[10px] font-bold text-slate-500 block">الزيارات المكتملة</span>
-                <span className="text-lg font-black text-emerald-600">{adminStats?.completedStops || 0}</span>
-                <span className="text-[9px] text-emerald-700 font-bold block">زيارة موثقة ✅</span>
-              </div>
+          {/* 4 OPDC Luxury KPI Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
+              <span className="text-[11px] font-bold text-slate-500 block mb-1">إجمالي المتاجر</span>
+              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalStores || 17}</span>
+              <span className="text-[10px] text-slate-500 font-bold block mt-0.5">محل مسجل في بغداد</span>
             </div>
 
-            {/* Rep Switcher for Admin */}
-            <div className="bg-[#f4f6f8] rounded-xl p-2.5 border border-[#edf1f3]">
-              <span className="text-[11px] font-black text-slate-700 block mb-1.5">
-                👁️ اختر المندوب لمراقبة خط سيره الميداني اليوم:
-              </span>
+            <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
+              <span className="text-[11px] font-bold text-slate-500 block mb-1">المندوبون الميدانيون</span>
+              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalReps || 3}</span>
+              <span className="text-[10px] text-slate-500 font-bold block mt-0.5">مندوبين نشطين 🟢</span>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
+              <span className="text-[11px] font-bold text-slate-500 block mb-1">محطات اليوم</span>
+              <span className="text-2xl font-black text-[#b89628]">{adminStats?.plannedStops || 10}</span>
+              <span className="text-[10px] text-[#b89628] font-bold block mt-0.5">محطة مجدولة للزيارة</span>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
+              <span className="text-[11px] font-bold text-slate-500 block mb-1">الزيارات المكتملة</span>
+              <span className="text-2xl font-black text-emerald-600">{adminStats?.completedStops || 0}</span>
+              <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">زيارة موثقة بالـ GPS ✅</span>
+            </div>
+          </div>
+
+          {/* Fleet Operations & Live Monitoring */}
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-opdc">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <h3 className="font-black text-sm text-[#0E4D38]">حالة أسطول المندوبين الميدانيين اليوم</h3>
+              </div>
+              <button
+                onClick={() => fetchInitialData()}
+                className="text-[11px] font-bold text-[#0E4D38] hover:text-[#0a3325] flex items-center gap-1 bg-[#f0f7f3] px-2.5 py-1 rounded-lg border border-[#c2e2d4]"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>تحديث الحالة</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Rep 1: Haider */}
+              <div className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-black text-sm text-slate-900">🚗 حيدر الكرخي</span>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                      نشط 🟢
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-500 block mb-1">قطاع: الكرخ والمنصور</span>
+                  <span className="text-xs text-slate-600 font-mono block">هاتف: 07702222222</span>
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInspectedRepId(3);
+                      setActiveTab('ROUTE');
+                    }}
+                    className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
+                  >
+                    مراقبة مساره 👁️
+                  </button>
+                  <a
+                    href="tel:07702222222"
+                    className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
+                  >
+                    📞
+                  </a>
+                </div>
+              </div>
+
+              {/* Rep 2: Ahmed */}
+              <div className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-black text-sm text-slate-900">🚗 أحمد التميمي</span>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                      نشط 🟢
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-500 block mb-1">قطاع: الرصافة والكرادة</span>
+                  <span className="text-xs text-slate-600 font-mono block">هاتف: 07701111111</span>
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInspectedRepId(2);
+                      setActiveTab('ROUTE');
+                    }}
+                    className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
+                  >
+                    مراقبة مساره 👁️
+                  </button>
+                  <a
+                    href="tel:07701111111"
+                    className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
+                  >
+                    📞
+                  </a>
+                </div>
+              </div>
+
+              {/* Rep 3: Omar */}
+              <div className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-black text-sm text-slate-900">🚗 عمر الزيدي</span>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                      نشط 🟢
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-500 block mb-1">قطاع: الجادرية والدورة</span>
+                  <span className="text-xs text-slate-600 font-mono block">هاتف: 07703333333</span>
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInspectedRepId(4);
+                      setActiveTab('ROUTE');
+                    }}
+                    className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
+                  >
+                    مراقبة مساره 👁️
+                  </button>
+                  <a
+                    href="tel:07703333333"
+                    className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
+                  >
+                    📞
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick System Shortcuts */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            <button
+              type="button"
+              onClick={() => setActiveTab('LOCKED_MAP')}
+              className="bg-[#f0f7f3] hover:bg-[#e0f0e7] border border-[#c2e2d4] p-3.5 rounded-2xl text-right flex items-center justify-between transition shadow-2xs"
+            >
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 rounded-xl bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-lg">
+                  🔒
+                </span>
+                <div>
+                  <span className="font-black text-sm text-[#0E4D38] block">خريطة كافة المتاجر المقفلة</span>
+                  <span className="text-xs text-slate-500">استعراض كافة المحلات ({lockedStores.length}) المسجلة لحمايتها من التضارب</span>
+                </div>
+              </div>
+              <ChevronLeft className="w-5 h-5 text-[#0E4D38]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('NEW_STORE')}
+              className="bg-[#f0f7f3] hover:bg-[#e0f0e7] border border-[#c2e2d4] p-3.5 rounded-2xl text-right flex items-center justify-between transition shadow-2xs"
+            >
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 rounded-xl bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-lg">
+                  ➕
+                </span>
+                <div>
+                  <span className="font-black text-sm text-[#0E4D38] block">تسجيل متجر جديد للشركة</span>
+                  <span className="text-xs text-slate-500">إضافة نقطة بيع جديدة مباشرة وتحديد موقعها عبر الـ GPS</span>
+                </div>
+              </div>
+              <ChevronLeft className="w-5 h-5 text-[#0E4D38]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 1 & 2: MAP VIEW (Route Map or Locked Map) */}
+      {(activeTab === 'ROUTE' || activeTab === 'LOCKED_MAP') && (
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col relative px-3 pt-2">
+          {/* Admin Rep Switcher Bar (Only in Route Map View for Admin) */}
+          {currentUser?.role === 'ADMIN' && activeTab === 'ROUTE' && (
+            <div className="bg-white rounded-2xl p-3 border-2 border-[#D4AF37] shadow-opdc mb-2.5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-black text-[#0E4D38] flex items-center gap-1.5">
+                  <span>👑 اختر المندوب لمراقبة خط سيره الميداني:</span>
+                </span>
+                <span className="text-[10px] font-bold bg-[#f0f7f3] text-[#0E4D38] px-2 py-0.5 rounded-lg border border-[#c2e2d4]">
+                  وضع الرقابة الميدانية
+                </span>
+              </div>
               <div className="flex gap-1.5 flex-wrap">
                 <button
                   type="button"
@@ -972,57 +1270,8 @@ export default function App() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Enterprise Segmented Tabs (3 Views) */}
-      <div className="max-w-4xl mx-auto w-full px-3 pt-3">
-        <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs">
-          <button
-            type="button"
-            onClick={() => setActiveTab('ROUTE')}
-            className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'ROUTE'
-                ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
-            }`}
-          >
-            <Navigation className="w-3.5 h-3.5 text-sky-600" />
-            <span>مساري لليوم</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('LOCKED_MAP')}
-            className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'LOCKED_MAP'
-                ? 'bg-white text-amber-800 shadow-xs border border-slate-200/80 ring-1 ring-amber-400/20'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Lock className="w-3.5 h-3.5 text-amber-600" />
-            <span>المتاجر المقفلة ({lockedStores.length})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('NEW_STORE')}
-            className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'NEW_STORE'
-                ? 'bg-white text-emerald-800 shadow-xs border border-slate-200/80 ring-1 ring-emerald-400/20'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
-            <span>عقد صفقة جديدة</span>
-          </button>
-        </div>
-      </div>
-
-      {/* VIEW 1 & 2: MAP VIEW (Route Map or Locked Map) */}
-      {(activeTab === 'ROUTE' || activeTab === 'LOCKED_MAP') && (
-        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col relative px-3 pt-2">
           {/* Map Info Banner */}
           {activeTab === 'ROUTE' ? (
             <div className="bg-white border border-slate-200/90 rounded-2xl p-2.5 mb-2.5 flex items-center justify-between text-xs shadow-2xs">
@@ -1036,13 +1285,23 @@ export default function App() {
                   <span>المتبقي: <strong className="font-mono">{routeData?.remainingCount || 0}</strong></span>
                 </span>
               </div>
-              <button
-                onClick={handleCompleteWorkday}
-                className="bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold py-1.5 px-3 rounded-xl border border-rose-200 transition-colors flex items-center gap-1 shadow-2xs"
-              >
-                <Flag className="w-3 h-3 text-rose-600" />
-                <span>إنهاء مسار اليوم</span>
-              </button>
+              {currentUser?.role === 'ADMIN' ? (
+                <button
+                  onClick={() => fetchInitialData()}
+                  className="bg-[#0E4D38] hover:bg-[#0a3325] text-white text-[11px] font-bold py-1.5 px-3 rounded-xl border border-[#D4AF37] transition-colors flex items-center gap-1.5 shadow-2xs"
+                >
+                  <RefreshCw className="w-3 h-3 text-[#D4AF37]" />
+                  <span>تحديث المسار</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleCompleteWorkday}
+                  className="bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold py-1.5 px-3 rounded-xl border border-rose-200 transition-colors flex items-center gap-1 shadow-2xs"
+                >
+                  <Flag className="w-3 h-3 text-rose-600" />
+                  <span>إنهاء مسار اليوم</span>
+                </button>
+              )}
             </div>
           ) : (
             <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-2.5 mb-2.5 flex items-center gap-2 text-xs text-amber-900 shadow-2xs">
