@@ -38,6 +38,8 @@ export default function App() {
   // Route & Stores Data
   const [routeData, setRouteData] = useState<any>(null);
   const [lockedStores, setLockedStores] = useState<any[]>([]);
+  const [adminStats, setAdminStats] = useState<any>(null);
+  const [inspectedRepId, setInspectedRepId] = useState<number>(3);
   const [loading, setLoading] = useState<boolean>(true);
   const [workdayStarted, setWorkdayStarted] = useState<boolean>(true);
 
@@ -136,7 +138,15 @@ export default function App() {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const currentRepId = currentUser?.id || selectedRepId;
+      const isUserAdmin = currentUser?.role === 'ADMIN';
+      const currentRepId = isUserAdmin ? inspectedRepId : (currentUser?.id || selectedRepId);
+      
+      if (isUserAdmin) {
+        fetch(`${API_BASE}/admin/dashboard`)
+          .then(r => r.json())
+          .then(d => { if (d.success && d.stats) setAdminStats(d.stats); })
+          .catch(() => {});
+      }
       const [zonesRes, routeRes] = await Promise.all([
         fetch(`${API_BASE}/zones`).then((r) => r.json()).catch(() => ({ success: false })),
         fetch(`${API_BASE}/routes/today?repId=${currentRepId}&lat=${liveGps.lat}&lng=${liveGps.lng}`)
@@ -860,6 +870,111 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      
+      {/* ========================================================= */}
+      {/* EXECUTIVE ADMIN DASHBOARD BAR (WHEN LOGGED IN AS ADMIN)    */}
+      {/* ========================================================= */}
+      {currentUser?.role === 'ADMIN' && (
+        <div className="max-w-4xl mx-auto w-full px-3 pt-3">
+          <div className="bg-white rounded-2xl border-2 border-[#D4AF37] shadow-opdc p-4 relative overflow-hidden">
+            {/* Header Badge */}
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#edf1f3]">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#D4AF37] to-[#b89628] text-slate-950 flex items-center justify-center font-black shadow-xs">
+                  👑
+                </span>
+                <div>
+                  <h2 className="text-sm font-black text-[#0E4D38]">لوحة تحكم المدير العام (فادي الفهد)</h2>
+                  <p className="text-[10px] font-bold text-slate-500">نظرة عامة على الإحصائيات ومراقبة المندوبين الميدانيين</p>
+                </div>
+              </div>
+              <a
+                href="https://fadi-charcoal-admin.web.app"
+                target="_blank"
+                rel="noreferrer"
+                className="bg-gradient-to-r from-[#0E4D38] to-[#16654a] hover:from-[#0a3325] hover:to-[#0E4D38] text-white text-[11px] font-extrabold px-3 py-1.5 rounded-xl border border-[#D4AF37] shadow-opdc-btn flex items-center gap-1.5 transition active:scale-95"
+              >
+                <span>🖥️ فتح لوحة الكمبيوتر</span>
+              </a>
+            </div>
+
+            {/* 4 OPDC Luxury KPI Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3.5">
+              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-500 block">إجمالي المتاجر</span>
+                <span className="text-lg font-black text-[#0E4D38]">{adminStats?.totalStores || 17}</span>
+                <span className="text-[9px] text-[#0E4D38] font-bold block">محل مسجل</span>
+              </div>
+
+              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-500 block">المندوبون الميدانيون</span>
+                <span className="text-lg font-black text-[#0E4D38]">{adminStats?.totalReps || 3}</span>
+                <span className="text-[9px] text-[#0E4D38] font-bold block">مندوبين نشطين</span>
+              </div>
+
+              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-500 block">محطات اليوم</span>
+                <span className="text-lg font-black text-[#b89628]">{adminStats?.plannedStops || 10}</span>
+                <span className="text-[9px] text-[#b89628] font-bold block">محطة مجدولة</span>
+              </div>
+
+              <div className="bg-[#f0f7f3] border border-[#c2e2d4] rounded-xl p-2.5 text-center shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-500 block">الزيارات المكتملة</span>
+                <span className="text-lg font-black text-emerald-600">{adminStats?.completedStops || 0}</span>
+                <span className="text-[9px] text-emerald-700 font-bold block">زيارة موثقة ✅</span>
+              </div>
+            </div>
+
+            {/* Rep Switcher for Admin */}
+            <div className="bg-[#f4f6f8] rounded-xl p-2.5 border border-[#edf1f3]">
+              <span className="text-[11px] font-black text-slate-700 block mb-1.5">
+                👁️ اختر المندوب لمراقبة خط سيره الميداني اليوم:
+              </span>
+              <div className="flex gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setInspectedRepId(3)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-2xs ${
+                    inspectedRepId === 3
+                      ? 'bg-[#0E4D38] text-white border-2 border-[#D4AF37] shadow-sm'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  }`}
+                >
+                  <span>🚗 حيدر الكرخي</span>
+                  {inspectedRepId === 3 && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setInspectedRepId(2)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-2xs ${
+                    inspectedRepId === 2
+                      ? 'bg-[#0E4D38] text-white border-2 border-[#D4AF37] shadow-sm'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  }`}
+                >
+                  <span>🚗 أحمد التميمي</span>
+                  {inspectedRepId === 2 && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setInspectedRepId(4)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-2xs ${
+                    inspectedRepId === 4
+                      ? 'bg-[#0E4D38] text-white border-2 border-[#D4AF37] shadow-sm'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  }`}
+                >
+                  <span>🚗 عمر الزيدي</span>
+                  {inspectedRepId === 4 && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Enterprise Segmented Tabs (3 Views) */}
       <div className="max-w-4xl mx-auto w-full px-3 pt-3">
