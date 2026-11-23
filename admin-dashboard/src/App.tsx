@@ -3,7 +3,8 @@ import {
   MapPin, Store, Navigation, ShieldAlert, CheckCircle2, XCircle,
   Clock, AlertTriangle, Users, FileText, BarChart3, Image as ImageIcon,
   Flame, Plus, Search, Filter, RefreshCw, Check, ArrowUpDown, DollarSign,
-  TrendingUp, Download, Eye, Layers, Compass, ArrowRight, Calendar, Lock
+  TrendingUp, Download, Eye, Layers, Compass, ArrowRight, Calendar, Lock,
+  Menu, X, Smartphone
 } from 'lucide-react';
 import L from 'leaflet';
 
@@ -14,6 +15,7 @@ type TabType = 'fleet' | 'planner' | 'audit' | 'conflicts' | 'stores' | 'skips' 
 export default function AdminApp() {
   const [currentTab, setCurrentTab] = useState<TabType>('fleet');
   const [currentRole, setCurrentRole] = useState<'ADMIN' | 'SUPERVISOR'>('ADMIN');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Data states
@@ -263,69 +265,100 @@ export default function AdminApp() {
   };
 
   return (
-    <div className="flex h-screen bg-[#f4f6f8] text-slate-900 font-cairo overflow-hidden">
+    <div className="flex h-screen bg-[#f4f6f8] text-slate-900 font-cairo overflow-hidden relative">
       {/* ========================================================= */}
-      {/* SIDEBAR NAVIGATION (RTL Layout)                          */}
+      {/* MOBILE DRAWER BACKDROP (Only active on mobile when open)  */}
       {/* ========================================================= */}
-      <aside className="w-64 bg-gradient-to-b from-[#0a3325] via-[#0E4D38] to-[#07241a] text-white border-l-4 border-[#D4AF37] flex flex-col justify-between p-4 shadow-2xl select-none relative">
-        <div className="flex flex-col gap-6">
-          {/* Brand Logo */}
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] shadow-gold-glow">
-              <Flame className="w-6 h-6 fill-current" />
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs lg:hidden transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* ========================================================= */}
+      {/* SIDEBAR NAVIGATION (Slide-over drawer on mobile, static on desktop) */}
+      {/* ========================================================= */}
+      <aside
+        className={`
+          fixed inset-y-0 right-0 z-50 w-72 max-w-[85vw] bg-gradient-to-b from-[#0a3325] via-[#0E4D38] to-[#07241a] text-white border-l-4 border-[#D4AF37] flex flex-col justify-between p-4 shadow-2xl select-none transition-transform duration-300 ease-in-out
+          lg:static lg:w-64 lg:translate-x-0 lg:z-auto lg:shrink-0
+          ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+        `}
+      >
+        <div className="flex flex-col gap-5 overflow-y-auto">
+          {/* Brand Logo & Close Button */}
+          <div className="flex items-center justify-between px-1 pb-3 border-b border-white/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] shadow-gold-glow shrink-0">
+                <Flame className="w-6 h-6 fill-current text-[#D4AF37]" />
+              </div>
+              <div>
+                <h1 className="text-sm font-black text-white leading-tight">برنامج الفحم لفادي</h1>
+                <p className="text-[10px] text-[#D4AF37] font-bold">لوحة الإدارة والتحكم (Enterprise)</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base font-black text-[#0E4D38] leading-tight">برنامج الفحم لفادي</h1>
-              <p className="text-[11px] text-[#D4AF37] font-bold">لوحة الإدارة والتحكم (Enterprise)</p>
-            </div>
+
+            {/* Mobile Close Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+              title="إغلاق القائمة"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation Links with auto-close on mobile */}
           <nav className="flex flex-col gap-1.5">
             <button
-              onClick={() => setCurrentTab('fleet')}
+              onClick={() => { setCurrentTab('fleet'); setMobileMenuOpen(false); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'fleet'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
               }`}
             >
               <Compass className="w-4 h-4" />
-              لوحة التتبع المباشر للأسطول
+              <span>لوحة التتبع المباشر للأسطول</span>
             </button>
 
             <button
-              onClick={() => setCurrentTab('planner')}
+              onClick={() => { setCurrentTab('planner'); setMobileMenuOpen(false); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'planner'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
               }`}
             >
               <Clock className="w-4 h-4" />
-              مخطط المسارات الأسبوعي
+              <span>مخطط المسارات الأسبوعي</span>
             </button>
 
             <button
-              onClick={() => setCurrentTab('audit')}
+              onClick={() => { setCurrentTab('audit'); setMobileMenuOpen(false); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'audit'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
               }`}
             >
               <ImageIcon className="w-4 h-4" />
-              تدقيق الزيارات ومعرض الصور
+              <span>تدقيق الزيارات ومعرض الصور</span>
             </button>
 
             <button
-              onClick={() => setCurrentTab('conflicts')}
+              onClick={() => { setCurrentTab('conflicts'); setMobileMenuOpen(false); }}
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'conflicts'
                   ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
               }`}
             >
               <span className="flex items-center gap-3">
                 <ShieldAlert className="w-4 h-4 text-rose-400" />
-                مركز تنبيهات التداخل (48h)
+                <span>مركز تنبيهات التداخل (48h)</span>
               </span>
               {conflicts.length > 0 && (
                 <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
@@ -335,15 +368,16 @@ export default function AdminApp() {
             </button>
 
             <button
-              onClick={() => setCurrentTab('skips')}
+              onClick={() => { setCurrentTab('skips'); setMobileMenuOpen(false); }}
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'skips'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
               }`}
             >
               <span className="flex items-center gap-3">
                 <ArrowRight className="w-4 h-4 text-rose-400" />
-                سجل التخطي الميداني
+                <span>سجل التخطي الميداني</span>
               </span>
               {skips.length > 0 && (
                 <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
@@ -353,35 +387,37 @@ export default function AdminApp() {
             </button>
 
             <button
-              onClick={() => setCurrentTab('stores')}
+              onClick={() => { setCurrentTab('stores'); setMobileMenuOpen(false); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'stores'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
               }`}
             >
               <Store className="w-4 h-4" />
-              إدارة المحلات والمناطق
+              <span>إدارة المحلات والمناطق</span>
             </button>
 
             <button
-              onClick={() => setCurrentTab('eod')}
+              onClick={() => { setCurrentTab('eod'); setMobileMenuOpen(false); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'eod'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-slate-900 font-bold'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
               }`}
             >
               <BarChart3 className="w-4 h-4" />
-              تقرير نهاية اليوم الإحصائي
+              <span>تقرير نهاية اليوم الإحصائي</span>
             </button>
           </nav>
         </div>
 
         {/* User Profile & Role Switcher */}
-        <div className="bg-black/25 border border-white/15 rounded-2xl p-3 flex flex-col gap-2">
+        <div className="bg-black/25 border border-white/15 rounded-2xl p-3 flex flex-col gap-2 mt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs">
-                ف
+              <div className="w-8 h-8 rounded-full bg-emerald-700 border border-[#D4AF37] flex items-center justify-center font-bold text-xs text-[#D4AF37]">
+                👑
               </div>
               <div>
                 <span className="text-xs font-bold block text-white">فادي المدير</span>
@@ -414,72 +450,131 @@ export default function AdminApp() {
       {/* ========================================================= */}
       {/* MAIN CONTENT AREA                                         */}
       {/* ========================================================= */}
-      <main className="flex-1 flex flex-col overflow-y-auto bg-[#f4f6f8] text-slate-900">
+      <main className="flex-1 flex flex-col overflow-y-auto bg-[#f4f6f8] text-slate-900 min-w-0 w-full">
         {/* Top Executive Stats Bar */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#edf1f3] px-6 py-3.5 flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-6">
-            <div>
-              <span className="text-xs font-bold text-slate-500">نقاط البيع</span>
-              <div className="text-base font-black text-[#0E4D38]">{stats?.totalStores || 15} محل</div>
-            </div>
-            <div className="w-[1px] h-7 bg-[#edf1f3]" />
-            <div>
-              <span className="text-xs font-bold text-slate-500">المحطات المنجزة اليوم</span>
-              <div className="text-base font-black text-[#0E4D38]">
-                {stats?.completedStops || 0} من {stats?.plannedStops || 10}
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#edf1f3] px-3 sm:px-6 py-2.5 sm:py-3.5 flex flex-col gap-2.5 shadow-xs">
+          {/* Row 1: Hamburger Menu, Page Title & Quick Actions */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              {/* Mobile Hamburger Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden w-9 h-9 rounded-xl bg-[#0E4D38] text-[#D4AF37] border border-[#D4AF37] flex items-center justify-center shadow-xs active:scale-95 cursor-pointer"
+                title="فتح القائمة الرئيسية"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-2 lg:hidden">
+                <div className="w-8 h-8 rounded-lg bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-sm shadow-xs">
+                  🔥
+                </div>
+                <div>
+                  <h1 className="text-xs font-black text-[#0E4D38] leading-tight">فادي الفهد</h1>
+                  <span className="text-[10px] text-slate-500 font-bold block">
+                    {currentTab === 'fleet' && 'لوحة التتبع المباشر'}
+                    {currentTab === 'planner' && 'مخطط المسارات'}
+                    {currentTab === 'audit' && 'تدقيق الزيارات'}
+                    {currentTab === 'conflicts' && 'تنبيهات التداخل'}
+                    {currentTab === 'skips' && 'سجل التخطي'}
+                    {currentTab === 'stores' && 'إدارة المحلات'}
+                    {currentTab === 'eod' && 'تقرير نهاية اليوم'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Desktop Current Section Pill */}
+              <div className="hidden lg:flex items-center gap-2 text-xs font-bold text-slate-500">
+                <span>القسم المفتوح:</span>
+                <span className="text-[#0E4D38] font-black bg-[#f0f7f3] px-2.5 py-1 rounded-lg border border-[#c2e2d4]">
+                  {currentTab === 'fleet' && '🧭 لوحة التتبع المباشر للأسطول'}
+                  {currentTab === 'planner' && '⏰ مخطط المسارات الأسبوعي'}
+                  {currentTab === 'audit' && '📸 تدقيق الزيارات ومعرض الصور'}
+                  {currentTab === 'conflicts' && '🛡️ مركز تنبيهات التداخل (48h)'}
+                  {currentTab === 'skips' && '➡️ سجل التخطي الميداني'}
+                  {currentTab === 'stores' && '🏬 إدارة المحلات والمناطق'}
+                  {currentTab === 'eod' && '📊 تقرير نهاية اليوم الإحصائي'}
+                </span>
               </div>
             </div>
-            <div className="w-[1px] h-7 bg-[#edf1f3]" />
-            <div>
-              <span className="text-xs font-bold text-slate-500">أكياس الفحم المبيعة</span>
-              <div className="text-base font-black text-[#b89628]">{stats?.totalBagsSold || 0} كيس</div>
-            </div>
-            <div className="w-[1px] h-7 bg-[#edf1f3]" />
-            <div>
-              <span className="text-xs font-bold text-slate-500">المقبوضات النقدية</span>
-              <div className="text-base font-black text-[#0E4D38]">
-                {(stats?.totalCashCollected || 0).toLocaleString()} د.ع
-              </div>
-            </div>
-            <div className="w-[1px] h-7 bg-[#edf1f3]" />
-            <div>
-              <span className="text-xs font-bold text-slate-500">انضباط الـ GPS</span>
-              <div className="text-base font-black text-[#0E4D38]">{stats?.complianceRate || 100}%</div>
+
+            <div className="flex items-center gap-2">
+              <a
+                href="https://fadi-charcoal-app.web.app"
+                target="_blank"
+                rel="noreferrer"
+                className="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-1.5 transition active:scale-95"
+                title="فتح تطبيق الموبايل PWA"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-sky-600" />
+                <span className="hidden xs:inline">تطبيق الموبايل</span>
+              </a>
+
+              <button
+                onClick={fetchAllData}
+                className="bg-[#f0f7f3] hover:bg-[#dff0e6] text-[#0E4D38] p-2 rounded-xl border border-[#c2e2d4] transition shadow-2xs active:scale-95 cursor-pointer"
+                title="تحديث البيانات"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={fetchAllData}
-              className="bg-[#f0f7f3] hover:bg-[#dff0e6] text-[#0E4D38] p-2 rounded-xl border border-[#c2e2d4] transition shadow-2xs"
-              title="تحديث البيانات"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
+          {/* Row 2: 5 Luxury KPI Cards (Horizontal Scroll on Mobile, Flex on Desktop) */}
+          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
+            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[95px]">
+              <span className="text-[10px] font-bold text-slate-500 block">نقاط البيع</span>
+              <div className="text-sm font-black text-[#0E4D38]">{stats?.totalStores || 15} محل</div>
+            </div>
+
+            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[125px]">
+              <span className="text-[10px] font-bold text-slate-500 block">المحطات المنجزة اليوم</span>
+              <div className="text-sm font-black text-[#0E4D38]">
+                {stats?.completedStops || 0} من {stats?.plannedStops || 10}
+              </div>
+            </div>
+
+            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[110px]">
+              <span className="text-[10px] font-bold text-slate-500 block">أكياس الفحم المبيعة</span>
+              <div className="text-sm font-black text-[#b89628]">{stats?.totalBagsSold || 0} كيس</div>
+            </div>
+
+            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[115px]">
+              <span className="text-[10px] font-bold text-slate-500 block">المقبوضات النقدية</span>
+              <div className="text-sm font-black text-[#0E4D38]">
+                {(stats?.totalCashCollected || 0).toLocaleString()} د.ع
+              </div>
+            </div>
+
+            <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[100px]">
+              <span className="text-[10px] font-bold text-slate-500 block">انضباط الـ GPS</span>
+              <div className="text-sm font-black text-emerald-600">{stats?.complianceRate || 100}%</div>
+            </div>
           </div>
         </header>
 
         {/* Tab Content Body */}
-        <div className="p-6 flex-1">
+        <div className="p-3 sm:p-5 lg:p-6 flex-1 min-w-0">
           {/* ========================================================= */}
           {/* SCREEN 1: LIVE FLEET MAP                                  */}
           {/* ========================================================= */}
           {currentTab === 'fleet' && (
             <div className="flex flex-col gap-4 h-full">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-black text-[#0E4D38]">لوحة التتبع المباشر لأسطول توزيع الفحم</h2>
+                  <h2 className="text-base sm:text-lg font-black text-[#0E4D38]">لوحة التتبع المباشر لأسطول توزيع الفحم</h2>
                   <p className="text-xs font-bold text-slate-500">
                     متابعة حركة المندوبين، المحطات المنجزة، المحطة الحالية النشطة، ومحطات الطوارئ
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-500 font-bold">فلترة حسب المندوب:</span>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <span className="text-xs font-bold text-slate-500 shrink-0">فلترة المندوب:</span>
                   <select
                     value={selectedRepFilter}
                     onChange={(e) => setSelectedRepFilter(e.target.value)}
-                    className="bg-slate-900 border border-[#edf1f3] text-xs font-bold text-white rounded-xl px-3 py-1.5 outline-none"
+                    className="bg-slate-900 border border-[#edf1f3] text-xs font-bold text-white rounded-xl px-3 py-1.5 outline-none flex-1 sm:flex-none"
                   >
                     <option value="">جميع المندوبين</option>
                     {reps.map((r) => (
@@ -492,25 +587,25 @@ export default function AdminApp() {
               </div>
 
               {/* Map Legend */}
-              <div className="flex items-center gap-4 bg-slate-900/60 border border-[#edf1f3] px-4 py-2 rounded-xl text-xs">
+              <div className="flex items-center gap-2 sm:gap-4 bg-slate-900/90 text-white border border-[#edf1f3] px-3 sm:px-4 py-2 rounded-xl text-xs flex-wrap">
                 <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
-                  <span className="w-3 h-3 rounded-full bg-emerald-500" /> مكتملة (تمت الزيارة)
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> مكتملة
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-400 font-bold">
-                  <span className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" /> المحطة الحالية النشطة
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" /> المحطة النشطة
                 </span>
                 <span className="flex items-center gap-1.5 text-purple-400 font-bold">
-                  <span className="w-3 h-3 rounded-full bg-purple-500" /> محطة طارئة (Ad-Hoc)
+                  <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> محطة طارئة
                 </span>
                 <span className="flex items-center gap-1.5 text-slate-400 font-bold">
-                  <span className="w-3 h-3 rounded-full bg-slate-600" /> بانتظار الزيارة
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-500" /> بانتظار الزيارة
                 </span>
               </div>
 
               {/* Leaflet Map Div */}
               <div
                 ref={mapRef}
-                className="w-full flex-1 min-h-[500px] rounded-2xl border border-[#edf1f3] overflow-hidden shadow-2xl z-10"
+                className="w-full h-[360px] sm:h-[480px] lg:h-[550px] rounded-2xl border border-[#edf1f3] overflow-hidden shadow-xl z-10"
               />
             </div>
           )}
@@ -520,9 +615,9 @@ export default function AdminApp() {
           {/* ========================================================= */}
           {currentTab === 'planner' && (
             <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-black text-[#0E4D38]">مخطط المسارات الأسبوعي</h2>
+                  <h2 className="text-base sm:text-lg font-black text-[#0E4D38]">مخطط المسارات الأسبوعي</h2>
                   <p className="text-xs font-bold text-slate-500">
                     جدولة المحلات حسب المناطق الجغرافية، وترتيب المسار الأقرب هندسياً
                   </p>
@@ -532,16 +627,16 @@ export default function AdminApp() {
               {liveFleet.map((rep) => {
                 const route = rep.routes?.[0];
                 return (
-                  <div key={rep.id} className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-5 shadow-xl">
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#edf1f3]">
+                  <div key={rep.id} className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-3.5 sm:p-5 shadow-xl">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[#edf1f3]">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center font-bold text-base shrink-0">
                           {rep.name.charAt(0)}
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-slate-900">{rep.name}</h3>
+                          <h3 className="text-sm font-black text-slate-900">{rep.name}</h3>
                           <p className="text-xs font-bold text-slate-500">
-                            خط سير: <b className="text-amber-400">{route?.dayName || 'الأحد'}</b> ({route?.date || 'اليوم'})
+                            خط سير: <b className="text-amber-600">{route?.dayName || 'الأحد'}</b> ({route?.date || 'اليوم'})
                           </p>
                         </div>
                       </div>
@@ -549,10 +644,10 @@ export default function AdminApp() {
                       {route && (
                         <button
                           onClick={() => handleOptimizeRoute(route.id)}
-                          className="bg-blue-600 hover:bg-blue-500 text-slate-900 font-bold py-2 px-3 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition"
+                          className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-3.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition active:scale-95 w-full sm:w-auto justify-center"
                         >
                           <ArrowUpDown className="w-3.5 h-3.5" />
-                          ترتيب المسار الأقرب جغرافياً (Optimize)
+                          <span>ترتيب المسار الأقرب جغرافياً (Optimize)</span>
                         </button>
                       )}
                     </div>
@@ -666,47 +761,47 @@ export default function AdminApp() {
                       {/* Content */}
                       <div className="p-4 flex flex-col gap-2.5">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-extrabold text-white text-sm">{visit.store.name}</h3>
-                          <span className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          <h3 className="font-black text-slate-900 text-sm">{visit.store.name}</h3>
+                          <span className="bg-[#f0f7f3] text-[#0E4D38] border border-[#c2e2d4] text-[10px] font-bold px-2 py-0.5 rounded-full">
                             📍 {visit.store.zone?.name || 'بغداد'}
                           </span>
                         </div>
 
                         <p className="text-xs font-bold text-slate-500">
-                          المندوب: <b className="text-slate-200">{visit.rep.name}</b> |{' '}
+                          المندوب: <b className="text-slate-800">{visit.rep.name}</b> |{' '}
                           {new Date(visit.createdAt).toLocaleTimeString('ar-IQ')}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl border border-[#edf1f3] text-xs">
+                        <div className="grid grid-cols-2 gap-2 bg-[#f8faf9] p-2.5 rounded-xl border border-slate-200 text-xs">
                           <div>
-                            <span className="text-slate-400 block text-[11px]">أكياس الفحم:</span>
-                            <span className="font-bold text-amber-400">{visit.charcoalBags} كيس</span>
+                            <span className="text-slate-500 block text-[11px] font-bold">أكياس الفحم:</span>
+                            <span className="font-black text-[#b89628]">{visit.charcoalBags} كيس</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 block text-[11px]">المبلغ المستلم:</span>
-                            <span className="font-bold text-emerald-400">
+                            <span className="text-slate-500 block text-[11px] font-bold">المبلغ المستلم:</span>
+                            <span className="font-black text-[#0E4D38]">
                               {visit.cashCollected.toLocaleString()} د.ع
                             </span>
                           </div>
                         </div>
 
                         {visit.notes && (
-                          <p className="text-xs text-slate-300 bg-slate-800/50 p-2 rounded-lg italic">
+                          <p className="text-xs text-slate-700 bg-amber-50/70 border border-amber-200 p-2 rounded-lg italic">
                             "{visit.notes}"
                           </p>
                         )}
 
                         {/* Action buttons */}
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#edf1f3]">
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
                           <button
                             onClick={() => handleApproveVisit(visit.id, 'APPROVED')}
-                            className="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1"
+                            className="bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" /> اعتماد الزيارة
                           </button>
                           <button
                             onClick={() => handleApproveVisit(visit.id, 'REJECTED')}
-                            className="bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1"
+                            className="bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer"
                           >
                             <XCircle className="w-3.5 h-3.5" /> رفض ومساءلة
                           </button>
@@ -734,52 +829,54 @@ export default function AdminApp() {
                 </p>
               </div>
 
-              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden shadow-xl">
-                <table className="w-full text-right text-xs">
-                  <thead className="bg-slate-950 text-slate-300 border-b border-[#edf1f3]">
-                    <tr>
-                      <th className="p-3">#</th>
-                      <th className="p-3">اسم المحل والمنطقة</th>
-                      <th className="p-3">المندوب الحالي</th>
-                      <th className="p-3">المندوب السابق (خلال 48h)</th>
-                      <th className="p-3">تاريخ الزيارة السابقة</th>
-                      <th className="p-3">سبب الاستثناء المسجل</th>
-                      <th className="p-3">تاريخ التوثيق</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {conflicts.length === 0 ? (
+              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full min-w-[750px] text-right text-xs">
+                    <thead className="bg-[#0E4D38] text-white">
                       <tr>
-                        <td colSpan={7} className="p-8 text-center text-slate-500">
-                          لا توجد أي حالات تداخل مسجلة حالياً
-                        </td>
+                        <th className="p-3 font-black">#</th>
+                        <th className="p-3 font-black">اسم المحل والمنطقة</th>
+                        <th className="p-3 font-black">المندوب الحالي</th>
+                        <th className="p-3 font-black">المندوب السابق (خلال 48h)</th>
+                        <th className="p-3 font-black">تاريخ الزيارة السابقة</th>
+                        <th className="p-3 font-black">سبب الاستثناء المسجل</th>
+                        <th className="p-3 font-black">تاريخ التوثيق</th>
                       </tr>
-                    ) : (
-                      conflicts.map((c, idx) => (
-                        <tr key={c.id} className="hover:bg-slate-800/40 transition">
-                          <td className="p-3 font-mono">{idx + 1}</td>
-                          <td className="p-3">
-                            <span className="font-bold text-slate-900 block">{c.store.name}</span>
-                            <span className="text-[11px] text-blue-400">📍 {c.store.zone?.name || 'بغداد'}</span>
-                          </td>
-                          <td className="p-3 font-bold text-amber-400">{c.rep.name}</td>
-                          <td className="p-3 font-bold text-rose-400">{c.priorRep.name}</td>
-                          <td className="p-3 text-slate-400">
-                            {new Date(c.priorVisitDate).toLocaleString('ar-IQ')}
-                          </td>
-                          <td className="p-3">
-                            <span className="bg-rose-500/15 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-full font-bold">
-                              {c.overrideReason}
-                            </span>
-                          </td>
-                          <td className="p-3 text-slate-400">
-                            {new Date(c.createdAt).toLocaleDateString('ar-IQ')}
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                      {conflicts.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="p-8 text-center text-slate-400 font-bold">
+                            لا توجد أي حالات تداخل مسجلة حالياً
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        conflicts.map((c, idx) => (
+                          <tr key={c.id} className="hover:bg-slate-50 transition">
+                            <td className="p-3 font-mono font-bold text-slate-500">{idx + 1}</td>
+                            <td className="p-3">
+                              <span className="font-black text-slate-900 block">{c.store.name}</span>
+                              <span className="text-[11px] text-[#0E4D38] font-bold">📍 {c.store.zone?.name || 'بغداد'}</span>
+                            </td>
+                            <td className="p-3 font-bold text-amber-700">{c.rep.name}</td>
+                            <td className="p-3 font-bold text-rose-600">{c.priorRep.name}</td>
+                            <td className="p-3 text-slate-500 font-medium">
+                              {new Date(c.priorVisitDate).toLocaleString('ar-IQ')}
+                            </td>
+                            <td className="p-3">
+                              <span className="bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-full font-bold">
+                                {c.overrideReason}
+                              </span>
+                            </td>
+                            <td className="p-3 text-slate-500 font-medium">
+                              {new Date(c.createdAt).toLocaleDateString('ar-IQ')}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -805,105 +902,107 @@ export default function AdminApp() {
                 </button>
               </div>
 
-              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden shadow-xl">
-                <table className="w-full text-right text-xs">
-                  <thead className="bg-slate-950 text-slate-300 border-b border-[#edf1f3]">
-                    <tr>
-                      <th className="p-3">#</th>
-                      <th className="p-3">اسم المحل</th>
-                      <th className="p-3">المنطقة</th>
-                      <th className="p-3">المسؤول والهاتف</th>
-                      <th className="p-3">المندوب المتعاقد</th>
-                      <th className="p-3">دورة التكرار (Admin Only)</th>
-                      <th className="p-3">الزيارة القادمة</th>
-                      <th className="p-3">الديون المستحقة</th>
-                      <th className="p-3">نوع الفحم المفضل</th>
-                      <th className="p-3">الإحداثيات GPS</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {stores.map((s, idx) => (
-                      <tr key={s.id} className="hover:bg-slate-800/40 transition">
-                        <td className="p-3 font-mono">{idx + 1}</td>
-                        <td className="p-3 font-bold text-white">{s.name}</td>
-                        <td className="p-3">
-                          <span className="bg-blue-500/15 text-blue-400 border border-blue-500/30 font-bold px-2.5 py-0.5 rounded-full text-[10px]">
-                            📍 {s.zone?.name || 'بغداد'}
-                          </span>
-                        </td>
-                        <td className="p-3">
-                          <span className="text-slate-200 block">{s.ownerName || '-'}</span>
-                          <span className="text-slate-400 font-mono text-[11px]">{s.phone || '-'}</span>
-                        </td>
-                        <td className="p-3 font-bold text-cyan-300">
-                          {s.contractedRep?.name || 'غير محدد'}
-                        </td>
-                        <td className="p-3">
-                          <div className="flex flex-col gap-1.5 min-w-[135px]">
-                            <div className="flex items-center gap-1">
-                              <input
-                                type="number"
-                                min={1}
-                                max={365}
-                                defaultValue={s.revisitCycleDays || 14}
-                                id={`cycle-input-${s.id}`}
-                                className="w-14 bg-white border border-[#c2e2d4] text-[#0E4D38] font-black px-1.5 py-1 rounded-lg text-xs text-center focus:ring-2 focus:ring-[#0E4D38] shadow-2xs"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    const val = Number((e.target as HTMLInputElement).value);
-                                    if (val > 0) handleUpdateCycle(s.id, val);
-                                  }
-                                }}
-                              />
-                              <span className="text-[11px] font-bold text-slate-600">يوم</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const input = document.getElementById(`cycle-input-${s.id}`) as HTMLInputElement;
-                                  if (input && Number(input.value) > 0) {
-                                    handleUpdateCycle(s.id, Number(input.value));
-                                  }
-                                }}
-                                className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] px-2 py-1 rounded-lg text-[10px] font-black border border-[#D4AF37] transition active:scale-95 shadow-2xs cursor-pointer"
-                                title="حفظ عدد الأيام المخصص"
-                              >
-                                حفظ 💾
-                              </button>
-                            </div>
-                            {/* Fast Presets: 4, 7, 14, 20, 30 days */}
-                            <div className="flex items-center gap-1 flex-wrap">
-                              {[4, 7, 14, 20, 30].map((d) => (
-                                <button
-                                  key={d}
-                                  type="button"
-                                  onClick={() => handleUpdateCycle(s.id, d)}
-                                  className={`text-[9px] px-1.5 py-0.5 rounded font-black border transition cursor-pointer ${
-                                    (s.revisitCycleDays || 14) === d
-                                      ? 'bg-[#0E4D38] text-white border-[#D4AF37]'
-                                      : 'bg-[#f0f7f3] text-slate-700 hover:bg-[#c2e2d4] border-slate-300'
-                                  }`}
-                                  title={`تعيين كل ${d} أيام`}
-                                >
-                                  {d}ي
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-3 font-bold text-emerald-400 font-mono">
-                          {s.nextVisitDate ? new Date(s.nextVisitDate).toLocaleDateString('ar-IQ') : 'اليوم'}
-                        </td>
-                        <td className="p-3 font-bold text-rose-400">
-                          {s.debt > 0 ? `${s.debt.toLocaleString()} د.ع` : 'لا يوجد'}
-                        </td>
-                        <td className="p-3 text-amber-300">{s.preferredCharcoal}</td>
-                        <td className="p-3 font-mono text-slate-400 text-[10px]">
-                          {s.latitude.toFixed(4)}, {s.longitude.toFixed(4)}
-                        </td>
+              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full min-w-[950px] text-right text-xs">
+                    <thead className="bg-[#0E4D38] text-white">
+                      <tr>
+                        <th className="p-3 font-black">#</th>
+                        <th className="p-3 font-black">اسم المحل</th>
+                        <th className="p-3 font-black">المنطقة</th>
+                        <th className="p-3 font-black">المسؤول والهاتف</th>
+                        <th className="p-3 font-black">المندوب المتعاقد</th>
+                        <th className="p-3 font-black">دورة التكرار (Admin Only)</th>
+                        <th className="p-3 font-black">الزيارة القادمة</th>
+                        <th className="p-3 font-black">الديون المستحقة</th>
+                        <th className="p-3 font-black">نوع الفحم المفضل</th>
+                        <th className="p-3 font-black">الإحداثيات GPS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                      {stores.map((s, idx) => (
+                        <tr key={s.id} className="hover:bg-slate-50 transition">
+                          <td className="p-3 font-mono font-bold text-slate-500">{idx + 1}</td>
+                          <td className="p-3 font-black text-slate-900">{s.name}</td>
+                          <td className="p-3">
+                            <span className="bg-[#f0f7f3] text-[#0E4D38] border border-[#c2e2d4] font-bold px-2.5 py-0.5 rounded-full text-[10px]">
+                              📍 {s.zone?.name || 'بغداد'}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <span className="text-slate-900 font-bold block">{s.ownerName || '-'}</span>
+                            <span className="text-slate-500 font-mono text-[11px]">{s.phone || '-'}</span>
+                          </td>
+                          <td className="p-3 font-bold text-sky-700">
+                            {s.contractedRep?.name || 'غير محدد'}
+                          </td>
+                          <td className="p-3">
+                            <div className="flex flex-col gap-1.5 min-w-[135px]">
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={365}
+                                  defaultValue={s.revisitCycleDays || 14}
+                                  id={`cycle-input-${s.id}`}
+                                  className="w-14 bg-white border border-[#c2e2d4] text-[#0E4D38] font-black px-1.5 py-1 rounded-lg text-xs text-center focus:ring-2 focus:ring-[#0E4D38] shadow-2xs"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      const val = Number((e.target as HTMLInputElement).value);
+                                      if (val > 0) handleUpdateCycle(s.id, val);
+                                    }
+                                  }}
+                                />
+                                <span className="text-[11px] font-bold text-slate-600">يوم</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const input = document.getElementById(`cycle-input-${s.id}`) as HTMLInputElement;
+                                    if (input && Number(input.value) > 0) {
+                                      handleUpdateCycle(s.id, Number(input.value));
+                                    }
+                                  }}
+                                  className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] px-2 py-1 rounded-lg text-[10px] font-black border border-[#D4AF37] transition active:scale-95 shadow-2xs cursor-pointer"
+                                  title="حفظ عدد الأيام المخصص"
+                                >
+                                  حفظ 💾
+                                </button>
+                              </div>
+                              {/* Fast Presets: 4, 7, 14, 20, 30 days */}
+                              <div className="flex items-center gap-1 flex-wrap">
+                                {[4, 7, 14, 20, 30].map((d) => (
+                                  <button
+                                    key={d}
+                                    type="button"
+                                    onClick={() => handleUpdateCycle(s.id, d)}
+                                    className={`text-[9px] px-1.5 py-0.5 rounded font-black border transition cursor-pointer ${
+                                      (s.revisitCycleDays || 14) === d
+                                        ? 'bg-[#0E4D38] text-white border-[#D4AF37]'
+                                        : 'bg-[#f0f7f3] text-slate-700 hover:bg-[#c2e2d4] border-slate-300'
+                                    }`}
+                                    title={`تعيين كل ${d} أيام`}
+                                  >
+                                    {d}ي
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3 font-bold text-emerald-700 font-mono">
+                            {s.nextVisitDate ? new Date(s.nextVisitDate).toLocaleDateString('ar-IQ') : 'اليوم'}
+                          </td>
+                          <td className="p-3 font-bold text-rose-600">
+                            {s.debt > 0 ? `${s.debt.toLocaleString()} د.ع` : 'لا يوجد'}
+                          </td>
+                          <td className="p-3 text-amber-700 font-bold">{s.preferredCharcoal}</td>
+                          <td className="p-3 font-mono text-slate-500 text-[10px]">
+                            {s.latitude.toFixed(4)}, {s.longitude.toFixed(4)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -923,53 +1022,55 @@ export default function AdminApp() {
                 </p>
               </div>
 
-              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden shadow-xl">
-                <table className="w-full text-right text-xs">
-                  <thead className="bg-slate-950 text-slate-300 border-b border-[#edf1f3]">
-                    <tr>
-                      <th className="p-3">#</th>
-                      <th className="p-3">اسم المحل والمنطقة</th>
-                      <th className="p-3">المندوب</th>
-                      <th className="p-3">سبب التخطي</th>
-                      <th className="p-3">تاريخ ووقت التخطي</th>
-                      <th className="p-3">حالة المحطة في المسار</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {skips.length === 0 ? (
+              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full min-w-[750px] text-right text-xs">
+                    <thead className="bg-[#0E4D38] text-white">
                       <tr>
-                        <td colSpan={6} className="p-8 text-center text-slate-500">
-                          لا توجد أي محطات متخطاة مسجلة حالياً
-                        </td>
+                        <th className="p-3 font-black">#</th>
+                        <th className="p-3 font-black">اسم المحل والمنطقة</th>
+                        <th className="p-3 font-black">المندوب</th>
+                        <th className="p-3 font-black">سبب التخطي</th>
+                        <th className="p-3 font-black">تاريخ ووقت التخطي</th>
+                        <th className="p-3 font-black">حالة المحطة في المسار</th>
                       </tr>
-                    ) : (
-                      skips.map((sk, idx) => (
-                        <tr key={sk.id} className="hover:bg-slate-800/40 transition">
-                          <td className="p-3 font-mono">{idx + 1}</td>
-                          <td className="p-3">
-                            <span className="font-bold text-slate-900 block">{sk.store.name}</span>
-                            <span className="text-[11px] text-blue-400">📍 {sk.store.zone?.name || 'بغداد'}</span>
-                          </td>
-                          <td className="p-3 font-bold text-amber-400">{sk.route?.rep?.name || '-'}</td>
-                          <td className="p-3">
-                            <span className="bg-rose-500/15 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-full font-bold">
-                              {sk.skipReason || 'طلب تأجيل'}
-                            </span>
-                          </td>
-                          <td className="p-3 text-slate-400 font-mono">
-                            {sk.skippedAt ? new Date(sk.skippedAt).toLocaleString('ar-IQ') : '-'}
-                          </td>
-                          <td className="p-3">
-                            <span className="text-rose-400 font-black flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                              منقول للنهاية (أحمر 🔴)
-                            </span>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                      {skips.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="p-8 text-center text-slate-400 font-bold">
+                            لا توجد أي محطات متخطاة مسجلة حالياً
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        skips.map((sk, idx) => (
+                          <tr key={sk.id} className="hover:bg-slate-50 transition">
+                            <td className="p-3 font-mono font-bold text-slate-500">{idx + 1}</td>
+                            <td className="p-3">
+                              <span className="font-black text-slate-900 block">{sk.store.name}</span>
+                              <span className="text-[11px] text-[#0E4D38] font-bold">📍 {sk.store.zone?.name || 'بغداد'}</span>
+                            </td>
+                            <td className="p-3 font-bold text-amber-700">{sk.route?.rep?.name || '-'}</td>
+                            <td className="p-3">
+                              <span className="bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-full font-bold">
+                                {sk.skipReason || 'طلب تأجيل'}
+                              </span>
+                            </td>
+                            <td className="p-3 text-slate-500 font-mono font-medium">
+                              {sk.skippedAt ? new Date(sk.skippedAt).toLocaleString('ar-IQ') : '-'}
+                            </td>
+                            <td className="p-3">
+                              <span className="text-rose-600 font-black flex items-center gap-1">
+                                <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                                منقول للنهاية (أحمر 🔴)
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -989,17 +1090,17 @@ export default function AdminApp() {
 
                 <button
                   onClick={() => window.print()}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-900 font-bold py-2 px-3 rounded-xl text-xs flex items-center gap-1.5 border border-slate-700 transition"
+                  className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] font-black py-2 px-3.5 rounded-xl text-xs flex items-center gap-1.5 border border-[#D4AF37] transition shadow-xs cursor-pointer active:scale-95"
                 >
                   <Download className="w-3.5 h-3.5" /> طباعة / تصدير التقرير
                 </button>
               </div>
 
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
                   <span className="text-xs font-bold text-slate-500 block mb-1">نسبة إنجاز خط السير</span>
-                  <div className="text-2xl font-black text-emerald-400">
+                  <div className="text-2xl font-black text-[#0E4D38]">
                     {stats?.plannedStops > 0
                       ? Math.round((stats.completedStops / stats.plannedStops) * 100)
                       : 0}
@@ -1012,19 +1113,19 @@ export default function AdminApp() {
 
                 <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
                   <span className="text-xs font-bold text-slate-500 block mb-1">المحطات الطارئة (Ad-Hoc)</span>
-                  <div className="text-2xl font-black text-purple-400">{stats?.adHocStops || 0}</div>
+                  <div className="text-2xl font-black text-purple-700">{stats?.adHocStops || 0}</div>
                   <span className="text-[11px] text-slate-500 mt-1 block">محطات أضيفت ميدانياً خارج الجدول</span>
                 </div>
 
                 <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
                   <span className="text-xs font-bold text-slate-500 block mb-1">مبيعات أكياس الفحم</span>
-                  <div className="text-2xl font-black text-amber-400">{stats?.totalBagsSold || 0} كيس</div>
+                  <div className="text-2xl font-black text-[#b89628]">{stats?.totalBagsSold || 0} كيس</div>
                   <span className="text-[11px] text-slate-500 mt-1 block">شيشة ليمون + مشاوي خشن</span>
                 </div>
 
                 <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-4">
                   <span className="text-xs font-bold text-slate-500 block mb-1">إجمالي النقدية المقبوضة</span>
-                  <div className="text-2xl font-black text-emerald-400">
+                  <div className="text-2xl font-black text-[#0E4D38]">
                     {(stats?.totalCashCollected || 0).toLocaleString()} د.ع
                   </div>
                   <span className="text-[11px] text-slate-500 mt-1 block">تم تسديدها لصندوق الشركة</span>
@@ -1039,40 +1140,40 @@ export default function AdminApp() {
       {/* MODAL: ADD STORE WITH ZONE                                */}
       {/* ========================================================= */}
       {newStoreModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
           <form
             onSubmit={handleCreateStore}
-            className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm p-6 max-w-md w-full shadow-2xl flex flex-col gap-3"
+            className="bg-white border border-[#c2e2d4] rounded-2xl shadow-2xl p-5 sm:p-6 max-w-md w-full flex flex-col gap-3.5"
           >
-            <div className="flex items-center justify-between border-b border-[#edf1f3] pb-3">
-              <h3 className="text-base font-extrabold text-white">إضافة نقطة بيع جديدة إلى الخريطة</h3>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-black text-[#0E4D38]">إضافة نقطة بيع جديدة إلى الخريطة</h3>
               <button
                 type="button"
                 onClick={() => setNewStoreModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition"
               >
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
 
             <div>
-              <label className="text-xs text-slate-300 block mb-1">اسم المحل *</label>
+              <label className="text-xs font-bold text-slate-700 block mb-1">اسم المحل *</label>
               <input
                 type="text"
                 required
                 value={storeForm.name}
                 onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#0E4D38]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-slate-300 block mb-1">المنطقة (إلزامي) *</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">المنطقة (إلزامي) *</label>
                 <select
                   value={storeForm.zoneId}
                   onChange={(e) => setStoreForm({ ...storeForm, zoneId: Number(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                  className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#0E4D38]"
                 >
                   {zones.map((z) => (
                     <option key={z.id} value={z.id}>
@@ -1083,11 +1184,11 @@ export default function AdminApp() {
               </div>
 
               <div>
-                <label className="text-xs text-slate-300 block mb-1">اليوم الدوري *</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">اليوم الدوري *</label>
                 <select
                   value={storeForm.assignedDay}
                   onChange={(e) => setStoreForm({ ...storeForm, assignedDay: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                  className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#0E4D38]"
                 >
                   <option value="Sunday">الأحد</option>
                   <option value="Monday">الإثنين</option>
@@ -1102,61 +1203,61 @@ export default function AdminApp() {
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-slate-300 block mb-1">اسم المسؤول</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">اسم المسؤول</label>
                 <input
                   type="text"
                   value={storeForm.ownerName}
                   onChange={(e) => setStoreForm({ ...storeForm, ownerName: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                  className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#0E4D38]"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-slate-300 block mb-1">رقم الهاتف</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">رقم الهاتف</label>
                 <input
                   type="text"
                   value={storeForm.phone}
                   onChange={(e) => setStoreForm({ ...storeForm, phone: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                  className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#0E4D38]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-slate-300 block mb-1">خط العرض (Latitude)</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">خط العرض (Latitude)</label>
                 <input
                   type="number"
                   step="any"
                   value={storeForm.latitude}
                   onChange={(e) => setStoreForm({ ...storeForm, latitude: parseFloat(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none font-mono"
+                  className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none font-mono focus:ring-2 focus:ring-[#0E4D38]"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-slate-300 block mb-1">خط الطول (Longitude)</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">خط الطول (Longitude)</label>
                 <input
                   type="number"
                   step="any"
                   value={storeForm.longitude}
                   onChange={(e) => setStoreForm({ ...storeForm, longitude: parseFloat(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none font-mono"
+                  className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none font-mono focus:ring-2 focus:ring-[#0E4D38]"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#edf1f3]">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setNewStoreModal(false)}
-                className="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition"
               >
                 إلغاء
               </button>
               <button
                 type="submit"
-                className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2 rounded-xl text-xs font-black shadow-lg shadow-amber-500/20"
+                className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] px-5 py-2 rounded-xl text-xs font-black border border-[#D4AF37] shadow-sm transition active:scale-95 cursor-pointer"
               >
                 تأكيد وحفظ المحل
               </button>
