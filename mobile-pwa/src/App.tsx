@@ -76,6 +76,7 @@ export default function App() {
   const [newStorePhone, setNewStorePhone] = useState<string>('');
   const [newStoreCharcoal, setNewStoreCharcoal] = useState<string>('فحم شيشة درجة أولى');
   const [newStorePhotoBase64, setNewStorePhotoBase64] = useState<string>('');
+  const [newStoreRevisitCycle, setNewStoreRevisitCycle] = useState<number>(14);
   const [newStoreDuplicateError, setNewStoreDuplicateError] = useState<string>('');
   const [newStoreSuccessMsg, setNewStoreSuccessMsg] = useState<string>('');
 
@@ -232,6 +233,7 @@ export default function App() {
     setNewStorePhone('');
     setNewStoreCharcoal('فحم شيشة درجة أولى');
     setNewStorePhotoBase64('');
+    setNewStoreRevisitCycle(14);
     setNewStoreDuplicateError('');
     setNewStoreSuccessMsg('');
     setVisitNotes('');
@@ -634,6 +636,7 @@ export default function App() {
           preferredCharcoal: newStoreCharcoal,
           repId: currentUser?.id || selectedRepId,
           photoBase64: newStorePhotoBase64,
+          revisitCycleDays: newStoreRevisitCycle,
         }),
       });
 
@@ -648,6 +651,7 @@ export default function App() {
         setNewStoreOwner('');
         setNewStorePhone('');
         setNewStorePhotoBase64('');
+        setNewStoreRevisitCycle(14);
         // Immediately fetch data to display new store in the rep's route list!
         await fetchLockedStores();
         await fetchInitialData();
@@ -1766,10 +1770,49 @@ export default function App() {
                 )}
               </div>
 
-              {/* 14-Day Cycle Notice */}
-              <div className="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-sky-900 text-xs flex items-center gap-2.5 shadow-2xs">
-                <Calendar className="w-4 h-4 text-sky-600 flex-shrink-0" />
-                <span className="font-semibold">سيتم جدولة هذا المتجر تلقائياً للزيارة القادمة بعد 14 يوماً من اليوم.</span>
+              {/* Custom Revisit Cycle Input & Fast Presets (e.g. 4, 20 days) */}
+              <div className="bg-[#f0f7f3] p-3.5 rounded-2xl border border-[#c2e2d4] text-xs shadow-2xs">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="font-black text-[#0E4D38] flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-[#D4AF37]" />
+                    <span>تحديد دورة إعادة الزيارة (بالأيام):</span>
+                  </label>
+                  <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-xl border border-[#c2e2d4] shadow-2xs">
+                    <input
+                      type="number"
+                      min={1}
+                      max={365}
+                      value={newStoreRevisitCycle}
+                      onChange={(e) => setNewStoreRevisitCycle(Math.max(1, Number(e.target.value) || 1))}
+                      className="w-12 text-center font-black text-[#0E4D38] text-sm focus:outline-none"
+                    />
+                    <span className="text-[11px] font-bold text-slate-500">يوم</span>
+                  </div>
+                </div>
+
+                {/* Fast Presets: 4 days, 7 days, 14 days, 20 days, 30 days */}
+                <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                  <span className="text-[10px] text-slate-500 font-bold">خيارات سريعة:</span>
+                  {[4, 7, 14, 20, 30].map((days) => (
+                    <button
+                      key={days}
+                      type="button"
+                      onClick={() => setNewStoreRevisitCycle(days)}
+                      className={`text-[11px] px-2.5 py-1 rounded-lg font-black transition active:scale-95 cursor-pointer ${
+                        newStoreRevisitCycle === days
+                          ? 'bg-[#0E4D38] text-white border border-[#D4AF37] shadow-xs'
+                          : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                      }`}
+                    >
+                      {days} {days <= 10 ? 'أيام' : 'يوماً'}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="text-[11px] text-[#0E4D38] font-bold bg-white/70 p-2 rounded-xl border border-[#c2e2d4]/60">
+                  🗓️ الزيارة القادمة ستتم تلقائياً بعد <b>{newStoreRevisitCycle} يوماً</b> (بتاريخ:{' '}
+                  {new Date(Date.now() + newStoreRevisitCycle * 24 * 60 * 60 * 1000).toLocaleDateString('ar-IQ')})
+                </div>
               </div>
 
               {/* Submit Deal Button & Clear Form */}

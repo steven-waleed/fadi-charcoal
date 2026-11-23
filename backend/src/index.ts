@@ -288,8 +288,10 @@ app.post('/api/stores', upload.single('photo'), async (req: Request, res: Respon
       }
     }
 
-    // Default 14-day cycle
-    const revisitDays = 14;
+    // Custom revisit cycle (support any number of days, e.g. 4, 20, etc.)
+    const revisitDays = req.body.revisitCycleDays && Number(req.body.revisitCycleDays) >= 1
+      ? Number(req.body.revisitCycleDays)
+      : 14;
     const nextVisitDate = new Date(Date.now() + revisitDays * 24 * 60 * 60 * 1000);
 
     // Validate Zone Foreign Key

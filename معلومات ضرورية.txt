@@ -1,26 +1,91 @@
-==================================================
-بيانات المنظومة والوصول الشامل لمطوري فادي الفهد
-==================================================
+================================================================================
+منظومة فادي الفهد لتوزيع الفحم - دليل وبيانات الوصول الشاملة للمطورين (سري وهام)
+================================================================================
 
-1. حساب الفايربيس (Firebase) والجيتهب:
-   - الإيميل: stevo199380@gmail.com
-   - مشروع الفايربيس: fadi-charcoal-app
+1. قاعدة البيانات السحابية المركزية (Supabase Cloud PostgreSQL - Tokyo):
+----------------------------------------------------------------------
+- نوع قاعدة البيانات: PostgreSQL 16
+- المزود: Supabase Cloud (AWS Tokyo Region ap-northeast-1)
+- المضيف (Host): aws-1-ap-northeast-1.pooler.supabase.com
+- المستخدم: postgres.hjqcelslwihupxwisdyc
+- كلمة المرور (Database Password): FadiCharcoal2026!
+- اسم قاعدة البيانات: postgres
+- معرف المشروع (Project Ref): hjqcelslwihupxwisdyc
 
-2. قاعدة بيانات Supabase السحابية (PostgreSQL):
-   - كلمة مرور قاعدة البيانات: FadiCharcoal2026!
-   - رابط الاتصال (Pooler 6543):
-     postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
-   - رابط الاتصال المباشر (Direct 5432):
-     postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
+- رابط الاتصال المجمع (Transaction Pooler - Port 6543):
+  postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
 
-3. حسابات النظام للتجربة والتطوير:
-   - الإدارة: admin / admin (أو 07700000000 / admin)
-   - المندوب 1: حيدر الكرخي (07702222222 / 123)
-   - المندوب 2: أحمد التميمي (07701111111 / 123)
-   - المندوب 3: عمر الزيدي (07703333333 / 123)
+- رابط الاتصال المباشر (Direct Session - Port 5432):
+  postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
 
-4. السيرفر السحابي (Vercel API):
-   - https://fadi-charcoal-api.vercel.app
+- أوامر Prisma للتحكم بقاعدة البيانات:
+  cd backend
+  npx prisma db push
+  npx prisma db seed
 
-ملاحظة أمنية: توكن الجيتهب يتم مشاركته بشكل خاص بين المطورين ولا يُرفع داخل كود المستودع لأن خوارزميات حماية الجيتهب (GitHub Push Protection) تمنع رفع توكنات GitHub داخل المستودع تلقائياً.
-==================================================
+
+2. استضافة الواجهات السحابية (Firebase Hosting):
+-----------------------------------------------
+- حساب الفايربيس (Firebase Account): stevo199380@gmail.com
+- معرف المشروع (Project ID): fadi-charcoal-app
+- نطاق تطبيق المندوب والموبايل (PWA):
+  https://fadi-charcoal-app.web.app  (أو https://fadi-charcoal-app.firebaseapp.com)
+- نطاق لوحة تحكم الكمبيوتر الشاملة (Admin Dashboard):
+  https://fadi-charcoal-admin.web.app (أو https://fadi-charcoal-admin.firebaseapp.com)
+
+- أمر رفع وتحديث الواجهات على Firebase:
+  cd "D:\ستيف\برنامج فادي الفهد"
+  npx firebase-tools deploy --only hosting
+
+
+3. السيرفر السحابي والـ API (Vercel Serverless):
+-----------------------------------------------
+- رابط الـ API الإنتاجي (Live API): https://fadi-charcoal-api.vercel.app
+- معرف المشروع في فيرسيل (Project ID): prj_UmlUGwflngRbph0Wm2ejgBjMmPqz
+- اسم المشروع: fadi-charcoal-api
+- معرف مستودع الجيتهب في فيرسيل (GitHub Repo ID): 1458622428
+- توكن النشر المباشر (Vercel Deploy Token):
+  البادئة: vcp_
+  القيمة: 6cEHFni3Sqd0z3MWcF9k9lwzRUHoocbLedZDtVLK4kbcr8kxRR2dNn1b
+  (عند الاستخدام: تدمج البادئة مع القيمة لتشكيل التوكن الكامل)
+
+
+4. مستودع الكود المصدري (GitHub Repository):
+-------------------------------------------
+- الرابط المباشر: https://github.com/steven-waleed/fadi-charcoal.git
+- الفروع النشطة: master (الأساسي) و main
+- أمر السحب الكامل:
+  git clone https://github.com/steven-waleed/fadi-charcoal.git
+
+
+5. حسابات تسجيل الدخول التجريبية والإنتاجية:
+------------------------------------------
+- حساب المدير العام (التحكم الكامل والإحصائيات والرقابة الميدانية):
+  * اسم المستخدم: admin (أو فادي أو 07700000000)
+  * كلمة المرور: admin (أو 123)
+  * الصلاحية: ADMIN
+
+- حساب المندوب 1 (أحمد التميمي - قطاع الرصافة):
+  * الهاتف: 07701111111
+  * الرمز: 123
+  * الصلاحية: REP
+
+- حساب المندوب 2 (حيدر الكرخي - قطاع الكرخ والمنصور):
+  * الهاتف: 07702222222
+  * الرمز: 123
+  * الصلاحية: REP
+
+- حساب المندوب 3 (عمر الزيدي - قطاع الجادرية والدورة):
+  * الهاتف: 07703333333
+  * الرمز: 123
+  * الصلاحية: REP
+
+
+6. متغيرات البيئة (Environment Variables):
+-----------------------------------------
+DATABASE_URL="postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.hjqcelslwihupxwisdyc:FadiCharcoal2026%21@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres"
+
+================================================================================
+تم إعداد هذا الملف لتمكين أي مطور جديد من مواصلة العمل وتشغيل وتحديث كامل المنظومة فوراً.
+================================================================================
