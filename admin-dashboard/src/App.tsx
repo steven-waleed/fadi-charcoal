@@ -450,65 +450,52 @@ export default function AdminApp() {
       {/* ========================================================= */}
       {/* MAIN CONTENT AREA                                         */}
       {/* ========================================================= */}
-      <main className="flex-1 flex flex-col overflow-y-auto bg-[#f4f6f8] text-slate-900 min-w-0 w-full">
-        {/* Top Executive Stats Bar */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#edf1f3] px-3 sm:px-6 py-2.5 sm:py-3.5 flex flex-col gap-2.5 shadow-xs">
-          {/* Row 1: Hamburger Menu, Page Title & Quick Actions */}
+      <main className="flex-1 flex flex-col overflow-y-auto bg-[#f4f6f8] text-slate-900 min-w-0 w-full pb-20 lg:pb-6">
+        {/* Top Executive Stats Bar & Responsive Navbar */}
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#edf1f3] px-3 sm:px-6 py-2.5 sm:py-3 flex flex-col gap-2 shadow-xs">
+          {/* Row 1: Brand, Current View, Mobile Hamburger Toggle & Actions */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               {/* Mobile Hamburger Toggle Button */}
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden w-9 h-9 rounded-xl bg-[#0E4D38] text-[#D4AF37] border border-[#D4AF37] flex items-center justify-center shadow-xs active:scale-95 cursor-pointer"
-                title="فتح القائمة الرئيسية"
+                className="lg:hidden w-9 h-9 rounded-xl bg-[#0E4D38] text-[#D4AF37] border border-[#D4AF37] flex items-center justify-center shadow-xs active:scale-95 cursor-pointer shrink-0"
+                title="فتح القائمة الجانبية الكاملة"
               >
                 <Menu className="w-5 h-5" />
               </button>
 
-              <div className="flex items-center gap-2 lg:hidden">
-                <div className="w-8 h-8 rounded-lg bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-sm shadow-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                   🔥
                 </div>
-                <div>
-                  <h1 className="text-xs font-black text-[#0E4D38] leading-tight">فادي الفهد</h1>
-                  <span className="text-[10px] text-slate-500 font-bold block">
-                    {currentTab === 'fleet' && 'لوحة التتبع المباشر'}
-                    {currentTab === 'planner' && 'مخطط المسارات'}
-                    {currentTab === 'audit' && 'تدقيق الزيارات'}
-                    {currentTab === 'conflicts' && 'تنبيهات التداخل'}
-                    {currentTab === 'skips' && 'سجل التخطي'}
-                    {currentTab === 'stores' && 'إدارة المحلات'}
-                    {currentTab === 'eod' && 'تقرير نهاية اليوم'}
+                <div className="min-w-0">
+                  <h1 className="text-xs sm:text-sm font-black text-[#0E4D38] leading-tight truncate">فادي الفهد</h1>
+                  <span className="text-[10px] text-slate-500 font-bold block truncate">
+                    {currentTab === 'fleet' && '🧭 تتبع الأسطول'}
+                    {currentTab === 'planner' && '⏰ مخطط المسارات'}
+                    {currentTab === 'audit' && '📸 تدقيق الزيارات'}
+                    {currentTab === 'conflicts' && '🛡️ تنبيهات التداخل'}
+                    {currentTab === 'skips' && '➡️ سجل التخطي'}
+                    {currentTab === 'stores' && '🏬 إدارة المحلات'}
+                    {currentTab === 'eod' && '📊 تقرير اليوم'}
                   </span>
                 </div>
               </div>
-
-              {/* Desktop Current Section Pill */}
-              <div className="hidden lg:flex items-center gap-2 text-xs font-bold text-slate-500">
-                <span>القسم المفتوح:</span>
-                <span className="text-[#0E4D38] font-black bg-[#f0f7f3] px-2.5 py-1 rounded-lg border border-[#c2e2d4]">
-                  {currentTab === 'fleet' && '🧭 لوحة التتبع المباشر للأسطول'}
-                  {currentTab === 'planner' && '⏰ مخطط المسارات الأسبوعي'}
-                  {currentTab === 'audit' && '📸 تدقيق الزيارات ومعرض الصور'}
-                  {currentTab === 'conflicts' && '🛡️ مركز تنبيهات التداخل (48h)'}
-                  {currentTab === 'skips' && '➡️ سجل التخطي الميداني'}
-                  {currentTab === 'stores' && '🏬 إدارة المحلات والمناطق'}
-                  {currentTab === 'eod' && '📊 تقرير نهاية اليوم الإحصائي'}
-                </span>
-              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* Quick Actions (Mobile App Link & Data Refresh) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <a
                 href="https://fadi-charcoal-app.web.app"
                 target="_blank"
                 rel="noreferrer"
-                className="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-1.5 transition active:scale-95"
+                className="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-1.5 transition active:scale-95"
                 title="فتح تطبيق الموبايل PWA"
               >
                 <Smartphone className="w-3.5 h-3.5 text-sky-600" />
-                <span className="hidden xs:inline">تطبيق الموبايل</span>
+                <span className="hidden xs:inline">الموبايل</span>
               </a>
 
               <button
@@ -521,7 +508,104 @@ export default function AdminApp() {
             </div>
           </div>
 
-          {/* Row 2: 5 Luxury KPI Cards (Horizontal Scroll on Mobile, Flex on Desktop) */}
+          {/* Row 2: Responsive Navbar Tab Chips (Scrollable Horizontally on Mobile, Flex on Desktop) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-t border-slate-100 pt-1.5">
+            <button
+              onClick={() => setCurrentTab('fleet')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'fleet'
+                  ? 'bg-[#0E4D38] text-[#D4AF37] font-black border border-[#D4AF37] shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-[#f0f7f3] border border-slate-200'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>تتبع الأسطول</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('planner')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'planner'
+                  ? 'bg-[#0E4D38] text-[#D4AF37] font-black border border-[#D4AF37] shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-[#f0f7f3] border border-slate-200'
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>مخطط المسارات</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('audit')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'audit'
+                  ? 'bg-[#0E4D38] text-[#D4AF37] font-black border border-[#D4AF37] shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-[#f0f7f3] border border-slate-200'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>تدقيق الزيارات</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('conflicts')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'conflicts'
+                  ? 'bg-rose-600 text-white font-black border border-rose-700 shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-rose-50 border border-slate-200'
+              }`}
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
+              <span>التداخل</span>
+              {conflicts.length > 0 && (
+                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                  {conflicts.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('skips')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'skips'
+                  ? 'bg-[#0E4D38] text-[#D4AF37] font-black border border-[#D4AF37] shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-[#f0f7f3] border border-slate-200'
+              }`}
+            >
+              <ArrowRight className="w-3.5 h-3.5 text-rose-500" />
+              <span>سجل التخطي</span>
+              {skips.length > 0 && (
+                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                  {skips.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('stores')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'stores'
+                  ? 'bg-[#0E4D38] text-[#D4AF37] font-black border border-[#D4AF37] shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-[#f0f7f3] border border-slate-200'
+              }`}
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>المحلات</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('eod')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'eod'
+                  ? 'bg-[#0E4D38] text-[#D4AF37] font-black border border-[#D4AF37] shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-[#f0f7f3] border border-slate-200'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>تقرير اليوم</span>
+            </button>
+          </div>
+
+          {/* Row 3: 5 Luxury KPI Cards (Horizontal Scroll on Mobile, Flex on Desktop) */}
           <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
             <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[95px]">
               <span className="text-[10px] font-bold text-slate-500 block">نقاط البيع</span>
@@ -1266,9 +1350,65 @@ export default function AdminApp() {
         </div>
       )}
 
+      {/* ========================================================= */}
+      {/* MOBILE BOTTOM NAVIGATION BAR                              */}
+      {/* ========================================================= */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-3 flex items-center justify-around shadow-2xl safe-area-pb">
+        <button
+          onClick={() => setCurrentTab('fleet')}
+          className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition ${
+            currentTab === 'fleet' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+          }`}
+        >
+          <Compass className={`w-5 h-5 ${currentTab === 'fleet' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+          <span className="text-[10px]">الأسطول</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab('planner')}
+          className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition ${
+            currentTab === 'planner' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+          }`}
+        >
+          <Clock className={`w-5 h-5 ${currentTab === 'planner' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+          <span className="text-[10px]">المسارات</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab('stores')}
+          className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition ${
+            currentTab === 'stores' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+          }`}
+        >
+          <Store className={`w-5 h-5 ${currentTab === 'stores' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+          <span className="text-[10px]">المحلات</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab('audit')}
+          className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition ${
+            currentTab === 'audit' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+          }`}
+        >
+          <ImageIcon className={`w-5 h-5 ${currentTab === 'audit' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+          <span className="text-[10px]">التدقيق</span>
+        </button>
+
+        <button
+          onClick={() => setMobileMenuOpen(true)}
+          className="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-500 font-bold relative"
+        >
+          {(conflicts.length > 0 || skips.length > 0) && (
+            <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+          )}
+          <Menu className="w-5 h-5 text-slate-600" />
+          <span className="text-[10px]">المزيد ☰</span>
+        </button>
+      </nav>
+
       {/* TOAST NOTIFICATION */}
       {toastMessage && (
-        <div className="fixed bottom-6 left-6 z-50 bg-slate-900 border border-amber-500/40 text-amber-300 px-4 py-2.5 rounded-xl text-xs font-bold shadow-2xl">
+        <div className="fixed bottom-16 lg:bottom-6 left-6 z-50 bg-slate-900 border border-amber-500/40 text-amber-300 px-4 py-2.5 rounded-xl text-xs font-bold shadow-2xl">
           {toastMessage}
         </div>
       )}

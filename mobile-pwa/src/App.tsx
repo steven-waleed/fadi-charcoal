@@ -3,7 +3,8 @@ import {
   MapPin, Phone, Navigation, Camera, CheckCircle2, AlertTriangle, 
   PlusCircle, Wifi, WifiOff, RefreshCw, Play, ChevronLeft, ArrowRight,
   Package, DollarSign, Clock, ShieldAlert, XCircle, Flame, Store, Lock,
-  Calendar, Check, AlertCircle, Eye, Compass, Flag, LogIn, LogOut, User as UserIcon, KeyRound, RotateCcw
+  Calendar, Check, AlertCircle, Eye, Compass, Flag, LogIn, LogOut, User as UserIcon, KeyRound, RotateCcw,
+  BarChart3
 } from 'lucide-react';
 import L from 'leaflet';
 import { db, type SyncQueueItem } from './db';
@@ -876,19 +877,22 @@ export default function App() {
           {/* User Badge, GPS Telemetry & Logout */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Live GPS Telemetry Badge */}
-            <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/20 text-[11px] font-bold text-white shadow-2xs">
+            <div className="flex items-center gap-1.5 bg-black/25 backdrop-blur-md px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border border-white/20 text-[11px] font-bold text-white shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
               </span>
-              <span className="font-mono text-slate-800 font-bold">{liveGps.lat.toFixed(3)},{liveGps.lng.toFixed(3)}</span>
+              <span className="font-mono text-emerald-300 text-[10px] font-bold hidden xs:inline">
+                {liveGps.lat.toFixed(3)},{liveGps.lng.toFixed(3)}
+              </span>
+              <span className="text-[10px] text-emerald-300 font-bold xs:hidden">GPS نشط</span>
             </div>
 
             {/* Rep User Badge */}
-            <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md border border-[#D4AF37]/60 px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-2xs">
-              <UserIcon className="w-3.5 h-3.5 text-sky-600" />
+            <div className="flex items-center gap-1.5 bg-black/25 backdrop-blur-md border border-[#D4AF37]/60 px-2 sm:px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-2xs">
+              <UserIcon className="w-3.5 h-3.5 text-[#D4AF37]" />
               <div className="text-right">
-                <span className="text-slate-900 block font-black leading-tight text-[11px] truncate max-w-[80px] xs:max-w-[120px]">
+                <span className="text-white block font-black leading-tight text-[11px] truncate max-w-[70px] xs:max-w-[110px]">
                   {currentUser.name}
                 </span>
               </div>
@@ -897,7 +901,7 @@ export default function App() {
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-white/20 bg-white/15 hover:bg-rose-600 text-white flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-white/20 bg-black/25 hover:bg-rose-600 text-white flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
               title="تسجيل الخروج"
             >
               <LogOut className="w-4 h-4" />
@@ -907,15 +911,15 @@ export default function App() {
       </header>
 
       
-      {/* Segmented Navigation Tabs */}
+      {/* Segmented Navigation Tabs (Responsive with Horizontal Scroll on Narrow Screens) */}
       <div className="max-w-4xl mx-auto w-full px-3 pt-3">
-        <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs">
+        <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs overflow-x-auto scrollbar-none">
           {currentUser?.role === 'ADMIN' ? (
             <>
               <button
                 type="button"
                 onClick={() => setActiveTab('ADMIN_OVERVIEW')}
-                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
                   activeTab === 'ADMIN_OVERVIEW'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
                     : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
@@ -927,7 +931,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('ROUTE')}
-                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
                   activeTab === 'ROUTE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
                     : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
@@ -940,7 +944,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('LOCKED_MAP')}
-                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
                   activeTab === 'LOCKED_MAP'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
                     : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
@@ -953,7 +957,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('NEW_STORE')}
-                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-[85px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
                   activeTab === 'NEW_STORE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
                     : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
@@ -968,7 +972,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('ROUTE')}
-                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-[90px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
                   activeTab === 'ROUTE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
                     : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
@@ -981,7 +985,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('LOCKED_MAP')}
-                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
                   activeTab === 'LOCKED_MAP'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
                     : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
@@ -994,7 +998,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('NEW_STORE')}
-                className={`flex-1 py-2 px-1 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
                   activeTab === 'NEW_STORE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
                     : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
@@ -2020,6 +2024,87 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ========================================================= */}
+      {/* MOBILE BOTTOM NAVIGATION BAR                              */}
+      {/* ========================================================= */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-3 flex items-center justify-around shadow-2xl safe-area-pb">
+        {currentUser?.role === 'ADMIN' ? (
+          <>
+            <button
+              onClick={() => setActiveTab('ADMIN_OVERVIEW')}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition cursor-pointer ${
+                activeTab === 'ADMIN_OVERVIEW' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+              }`}
+            >
+              <BarChart3 className={`w-5 h-5 ${activeTab === 'ADMIN_OVERVIEW' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">الإحصائيات</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('ROUTE')}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition cursor-pointer ${
+                activeTab === 'ROUTE' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+              }`}
+            >
+              <Navigation className={`w-5 h-5 ${activeTab === 'ROUTE' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">المراقبة</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('LOCKED_MAP')}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition cursor-pointer ${
+                activeTab === 'LOCKED_MAP' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+              }`}
+            >
+              <Lock className={`w-5 h-5 ${activeTab === 'LOCKED_MAP' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">المقفلة ({lockedStores.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('NEW_STORE')}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition cursor-pointer ${
+                activeTab === 'NEW_STORE' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+              }`}
+            >
+              <PlusCircle className={`w-5 h-5 ${activeTab === 'NEW_STORE' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">متجر جديد</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setActiveTab('ROUTE')}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition cursor-pointer ${
+                activeTab === 'ROUTE' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+              }`}
+            >
+              <Navigation className={`w-5 h-5 ${activeTab === 'ROUTE' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">مساري</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('LOCKED_MAP')}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition cursor-pointer ${
+                activeTab === 'LOCKED_MAP' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+              }`}
+            >
+              <Lock className={`w-5 h-5 ${activeTab === 'LOCKED_MAP' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">المقفلة ({lockedStores.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('NEW_STORE')}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition cursor-pointer ${
+                activeTab === 'NEW_STORE' ? 'text-[#0E4D38] font-black scale-105' : 'text-slate-500 font-bold'
+              }`}
+            >
+              <PlusCircle className={`w-5 h-5 ${activeTab === 'NEW_STORE' ? 'text-[#0E4D38]' : 'text-slate-400'}`} />
+              <span className="text-[10px]">عقد صفقة</span>
+            </button>
+          </>
+        )}
+      </nav>
     </div>
   );
 }
