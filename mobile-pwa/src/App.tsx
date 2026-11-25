@@ -168,7 +168,10 @@ export default function App() {
           .catch(() => {});
         fetch(`${API_BASE}/admin/reps`)
           .then(r => r.json())
-          .then(d => { if (d.success && d.reps) setAdminReps(d.reps); })
+          .then(d => {
+            if (d.success && Array.isArray(d.data)) setAdminReps(d.data);
+            else if (d.success && Array.isArray(d.reps)) setAdminReps(d.reps);
+          })
           .catch(() => {});
         fetch(`${API_BASE}/stores`)
           .then(r => r.json())
@@ -185,9 +188,10 @@ export default function App() {
       }
       const [zonesRes, routeRes] = await Promise.all([
         fetch(`${API_BASE}/zones`).then((r) => r.json()).catch(() => ({ success: false })),
-        fetch(`${API_BASE}/routes/today?repId=${currentRepId}&lat=${liveGps.lat}&lng=${liveGps.lng}`)
-          .then((r) => r.json())
-          .catch(() => ({ success: false })),
+        (currentRepId
+          ? fetch(`${API_BASE}/routes/today?repId=${currentRepId}&lat=${liveGps.lat}&lng=${liveGps.lng}`).then(r => r.json())
+          : Promise.resolve({ success: true, hasRoute: false, route: null })
+        ).catch(() => ({ success: false })),
       ]);
 
       if (zonesRes.success && Array.isArray(zonesRes.data) && zonesRes.data.length > 0) {
@@ -957,18 +961,18 @@ export default function App() {
       </header>
 
       
-      {/* Segmented Navigation Tabs (Responsive with Horizontal Scroll on Narrow Screens) */}
+      {/* Segmented Navigation Tabs (Responsive 2x2 on Mobile, 4 Across on Tablet/Desktop) */}
       <div className="max-w-4xl mx-auto w-full px-3 pt-3">
-        <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs overflow-x-auto scrollbar-none">
+        <div className="bg-[#e8eee9] p-1.5 rounded-2xl border border-[#c2e2d4] shadow-2xs">
           {currentUser?.role === 'ADMIN' ? (
-            <>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
               <button
                 type="button"
                 onClick={() => setActiveTab('ADMIN_OVERVIEW')}
-                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
+                className={`py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'ADMIN_OVERVIEW'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                    : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
                 }`}
               >
                 <span>📊 لوحة الإحصائيات</span>
@@ -977,10 +981,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('ROUTE')}
-                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
+                className={`py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'ROUTE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                    : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
                 }`}
               >
                 <Navigation className="w-3.5 h-3.5 text-[#D4AF37]" />
@@ -990,10 +994,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('LOCKED_MAP')}
-                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
+                className={`py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'LOCKED_MAP'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                    : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
                 }`}
               >
                 <Lock className="w-3.5 h-3.5 text-amber-500" />
@@ -1003,25 +1007,25 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('NEW_STORE')}
-                className={`flex-1 min-w-[85px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
+                className={`py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'NEW_STORE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                    : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
                 }`}
               >
                 <PlusCircle className="w-3.5 h-3.5 text-emerald-500" />
                 <span>➕ متجر جديد</span>
               </button>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="grid grid-cols-3 gap-1.5">
               <button
                 type="button"
                 onClick={() => setActiveTab('ROUTE')}
-                className={`flex-1 min-w-[90px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
+                className={`py-2.5 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'ROUTE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                    : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
                 }`}
               >
                 <Navigation className="w-3.5 h-3.5 text-sky-400" />
@@ -1031,10 +1035,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('LOCKED_MAP')}
-                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
+                className={`py-2.5 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'LOCKED_MAP'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                    : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
                 }`}
               >
                 <Lock className="w-3.5 h-3.5 text-amber-400" />
@@ -1044,16 +1048,16 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('NEW_STORE')}
-                className={`flex-1 min-w-[95px] xs:min-w-0 py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 xs:shrink ${
+                className={`py-2.5 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'NEW_STORE'
                     ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                    : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                    : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
                 }`}
               >
                 <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
                 <span>عقد صفقة جديدة</span>
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -1117,15 +1121,15 @@ export default function App() {
             </div>
           </div>
 
-          {/* Admin Management Sub-Tabs (Integrated into this mobile view) */}
-          <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs overflow-x-auto scrollbar-none">
+          {/* Admin Management Sub-Tabs (2x2 Grid on Mobile, 4 Across on Desktop) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-[#e8eee9] p-1.5 rounded-2xl border border-[#c2e2d4] shadow-2xs">
             <button
               type="button"
               onClick={() => setAdminSubTab('reps')}
-              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 adminSubTab === 'reps'
                   ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                  : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -1135,10 +1139,10 @@ export default function App() {
             <button
               type="button"
               onClick={() => setAdminSubTab('stores')}
-              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 adminSubTab === 'stores'
                   ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                  : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
               }`}
             >
               <Store className="w-3.5 h-3.5" />
@@ -1148,23 +1152,23 @@ export default function App() {
             <button
               type="button"
               onClick={() => setAdminSubTab('audit')}
-              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 adminSubTab === 'audit'
                   ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                  : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
               }`}
             >
-              <Camera className="w-3.5 h-3.5" />
+              <ImageIcon className="w-3.5 h-3.5" />
               <span>📸 تدقيق الزيارات ({visitsFeed.length})</span>
             </button>
 
             <button
               type="button"
               onClick={() => setAdminSubTab('skips')}
-              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 adminSubTab === 'skips'
                   ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
-                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+                  : 'bg-white/60 text-[#0a3325] hover:bg-white hover:text-[#0E4D38] font-bold'
               }`}
             >
               <ShieldAlert className="w-3.5 h-3.5" />

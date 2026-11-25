@@ -546,10 +546,14 @@ app.post('/api/stores', upload.single('photo'), async (req: Request, res: Respon
 // ==========================================
 app.get('/api/routes/today', async (req: Request, res: Response) => {
   try {
-    let repId = req.query.repId ? Number(req.query.repId) : undefined;
+    const rawRepId = req.query.repId ? Number(req.query.repId) : NaN;
+    let repId = !isNaN(rawRepId) && rawRepId > 0 ? rawRepId : undefined;
     if (!repId) {
       const firstRep = await prisma.user.findFirst({ where: { role: 'REP', active: true }, orderBy: { id: 'asc' } });
-      repId = firstRep ? firstRep.id : 1;
+      if (!firstRep) {
+        return res.json({ success: true, message: 'لا يوجد مندوبين مسجلين حالياً', route: null, stops: [] });
+      }
+      repId = firstRep.id;
     }
 
     const userLat = req.query.lat ? parseFloat(String(req.query.lat)) : null;
