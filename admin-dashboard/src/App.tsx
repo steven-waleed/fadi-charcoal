@@ -10,7 +10,7 @@ import L from 'leaflet';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
-type TabType = 'fleet' | 'planner' | 'audit' | 'conflicts' | 'stores' | 'skips' | 'eod';
+type TabType = 'fleet' | 'planner' | 'audit' | 'conflicts' | 'stores' | 'skips' | 'eod' | 'reps';
 
 export default function AdminApp() {
   const [currentTab, setCurrentTab] = useState<TabType>('fleet');
@@ -21,6 +21,7 @@ export default function AdminApp() {
   // Data states
   const [stats, setStats] = useState<any>(null);
   const [reps, setReps] = useState<any[]>([]);
+  const [adminReps, setAdminReps] = useState<any[]>([]);
   const [zones, setZones] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
   const [visitsFeed, setVisitsFeed] = useState<any[]>([]);
@@ -31,6 +32,12 @@ export default function AdminApp() {
 
   // Modals & Forms
   const [newStoreModal, setNewStoreModal] = useState<boolean>(false);
+  const [newRepModal, setNewRepModal] = useState<boolean>(false);
+  const [repForm, setRepForm] = useState({
+    name: '',
+    phone: '',
+    password: '123',
+  });
   const [storeForm, setStoreForm] = useState({
     name: '',
     ownerName: '',
@@ -68,9 +75,10 @@ export default function AdminApp() {
             return { success: false, data: [] };
           });
 
-      const [statsRes, repsRes, zonesRes, storesRes, visitsRes, conflictsRes, fleetRes, skipsRes] = await Promise.all([
+      const [statsRes, repsRes, adminRepsRes, zonesRes, storesRes, visitsRes, conflictsRes, fleetRes, skipsRes] = await Promise.all([
         safeFetch(`${API_BASE}/admin/dashboard`),
         safeFetch(`${API_BASE}/reps`),
+        safeFetch(`${API_BASE}/admin/reps`),
         safeFetch(`${API_BASE}/zones`),
         safeFetch(`${API_BASE}/stores`),
         safeFetch(`${API_BASE}/admin/visits-feed`),
@@ -81,6 +89,7 @@ export default function AdminApp() {
 
       if (statsRes.success) setStats(statsRes.stats);
       if (repsRes.success && Array.isArray(repsRes.data)) setReps(repsRes.data);
+      if (adminRepsRes.success && Array.isArray(adminRepsRes.data)) setAdminReps(adminRepsRes.data);
       if (zonesRes.success && Array.isArray(zonesRes.data)) {
         setZones(zonesRes.data);
         if (zonesRes.data.length > 0) {
@@ -96,6 +105,46 @@ export default function AdminApp() {
       console.log('Error fetching admin data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Reps Management Handlers
+  const handleCreateRep = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_BASE}/admin/reps`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(repForm),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message);
+        setNewRepModal(false);
+        setRepForm({ name: '', phone: '', password: '123' });
+        fetchAllData();
+      } else {
+        showToast(json.message || 'فشل إضافة المندوب');
+      }
+    } catch (e) {
+      showToast('حدث خطأ أثناء إضافة المندوب');
+    }
+  };
+
+  const handleToggleRepActive = async (repId: number) => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/reps/${repId}/toggle`, {
+        method: 'PUT',
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message);
+        fetchAllData();
+      } else {
+        showToast('فشل تعديل حالة المندوب');
+      }
+    } catch (e) {
+      showToast('فشل تعديل حالة المندوب');
     }
   };
 
@@ -281,9 +330,9 @@ export default function AdminApp() {
       {/* ========================================================= */}
       <aside
         className={`
-          fixed inset-y-0 right-0 z-50 w-72 max-w-[85vw] bg-gradient-to-b from-[#0a3325] via-[#0E4D38] to-[#07241a] text-white border-l-4 border-[#D4AF37] flex flex-col justify-between p-4 shadow-2xl select-none transition-transform duration-300 ease-in-out
-          lg:static lg:w-64 lg:translate-x-0 lg:z-auto lg:shrink-0
-          ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+          fixed inset-y-0 right-0 z-50 w-72 max-w-[85vw] bg-gradient-to-b from-[#0a3325] via-[#0E4D38] to-[#07241a] text-white border-l-4 border-[#D4AF37] flex flex-col justify-between p-4 shadow-2xl select-none transition-all duration-300 ease-in-out
+          lg:static lg:w-64 lg:translate-x-0 lg:z-auto lg:shrink-0 lg:opacity-100 lg:visible lg:pointer-events-auto
+          ${mobileMenuOpen ? 'translate-x-0 opacity-100 visible pointer-events-auto' : 'translate-x-full opacity-0 invisible pointer-events-none lg:opacity-100 lg:visible lg:pointer-events-auto'}
         `}
       >
         <div className="flex flex-col gap-5 overflow-y-auto">
@@ -294,7 +343,7 @@ export default function AdminApp() {
                 <Flame className="w-6 h-6 fill-current text-[#D4AF37]" />
               </div>
               <div>
-                <h1 className="text-sm font-black text-white leading-tight">برنامج الفحم لفادي</h1>
+                <h1 className="text-sm font-black text-white leading-tight">برنامج إدارة وتوزيع الفحم</h1>
                 <p className="text-[10px] text-[#D4AF37] font-bold">لوحة الإدارة والتحكم (Enterprise)</p>
               </div>
             </div>
@@ -399,6 +448,18 @@ export default function AdminApp() {
             </button>
 
             <button
+              onClick={() => { setCurrentTab('reps'); setMobileMenuOpen(false); }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
+                currentTab === 'reps'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#b89628] text-slate-950 font-black shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white font-bold'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>فريق المناديب والحسابات</span>
+            </button>
+
+            <button
               onClick={() => { setCurrentTab('eod'); setMobileMenuOpen(false); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs transition ${
                 currentTab === 'eod'
@@ -420,8 +481,8 @@ export default function AdminApp() {
                 👑
               </div>
               <div>
-                <span className="text-xs font-bold block text-white">فادي المدير</span>
-                <span className="text-[10px] text-slate-400 block">مشرف عام الأسطول</span>
+                <span className="text-xs font-bold block text-white">مدير النظام</span>
+                <span className="text-[10px] text-[#D4AF37] block">لوحة الإدارة والتحكم</span>
               </div>
             </div>
           </div>
@@ -471,7 +532,7 @@ export default function AdminApp() {
                   🔥
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-xs sm:text-sm font-black text-[#0E4D38] leading-tight truncate">فادي الفهد</h1>
+                  <h1 className="text-xs sm:text-sm font-black text-[#0E4D38] leading-tight truncate">نظام توزيع الفحم</h1>
                   <span className="text-[10px] text-slate-500 font-bold block truncate">
                     {currentTab === 'fleet' && '🧭 تتبع الأسطول'}
                     {currentTab === 'planner' && '⏰ مخطط المسارات'}
@@ -479,6 +540,7 @@ export default function AdminApp() {
                     {currentTab === 'conflicts' && '🛡️ تنبيهات التداخل'}
                     {currentTab === 'skips' && '➡️ سجل التخطي'}
                     {currentTab === 'stores' && '🏬 إدارة المحلات'}
+                    {currentTab === 'reps' && '👥 فريق المناديب والحسابات'}
                     {currentTab === 'eod' && '📊 تقرير اليوم'}
                   </span>
                 </div>
@@ -590,6 +652,18 @@ export default function AdminApp() {
             >
               <Store className="w-3.5 h-3.5" />
               <span>المحلات</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('reps')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer ${
+                currentTab === 'reps'
+                  ? 'bg-[#0E4D38] text-[#D4AF37] font-black border border-[#D4AF37] shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-[#f0f7f3] border border-slate-200'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>فريق المناديب</span>
             </button>
 
             <button
@@ -1174,6 +1248,112 @@ export default function AdminApp() {
               </div>
             </div>
           )}
+
+          {/* ========================================================= */}
+          {/* SCREEN 7: SALES REPS & ACCOUNTS MANAGEMENT                */}
+          {/* ========================================================= */}
+          {currentTab === 'reps' && (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-[#0E4D38]">إدارة المناديب وفريق التوزيع الميداني</h2>
+                  <p className="text-xs font-bold text-slate-500">
+                    إضافة وتعديل بيانات المناديب، وتحديد كلمات المرور، وتفعيل أو إيقاف الحسابات فورياً
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setNewRepModal(true)}
+                  className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] font-black py-2.5 px-4 rounded-xl text-xs flex items-center gap-2 border border-[#D4AF37] shadow-md transition active:scale-95 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 text-[#D4AF37]" />
+                  <span>إضافة مندوب جديد</span>
+                </button>
+              </div>
+
+              {/* Reps Cards / Table */}
+              <div className="bg-white border border-[#edf1f3] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full min-w-[700px] text-right text-xs">
+                    <thead className="bg-[#0E4D38] text-white">
+                      <tr>
+                        <th className="p-3 font-black">#</th>
+                        <th className="p-3 font-black">اسم المندوب</th>
+                        <th className="p-3 font-black">اسم الدخول / الهاتف</th>
+                        <th className="p-3 font-black">كلمة المرور</th>
+                        <th className="p-3 font-black">حالة الحساب</th>
+                        <th className="p-3 font-black">إجراء التفعيل / الإيقاف</th>
+                        <th className="p-3 font-black">نقاط البيع</th>
+                        <th className="p-3 font-black">الزيارات المنفذة</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                      {adminReps.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="p-8 text-center text-slate-400 font-bold">
+                            لا يوجد مناديب مسجلين حالياً. اضغط على "إضافة مندوب جديد" لإضافة مندوبك الأول.
+                          </td>
+                        </tr>
+                      ) : (
+                        adminReps.map((r, idx) => (
+                          <tr key={r.id} className="hover:bg-slate-50 transition">
+                            <td className="p-3 font-mono font-bold text-slate-500">{idx + 1}</td>
+                            <td className="p-3">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center font-bold text-xs shrink-0">
+                                  {r.name.charAt(0)}
+                                </div>
+                                <span className="font-black text-slate-900">{r.name}</span>
+                              </div>
+                            </td>
+                            <td className="p-3 font-mono font-bold text-slate-700">{r.phone}</td>
+                            <td className="p-3">
+                              <span className="font-mono bg-slate-100 px-2 py-1 rounded-lg border border-slate-200 text-slate-800 font-bold">
+                                {r.password}
+                              </span>
+                            </td>
+                            <td className="p-3">
+                              {r.active ? (
+                                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 w-fit">
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                  <span>مفعّل ✅</span>
+                                </span>
+                              ) : (
+                                <span className="bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 w-fit">
+                                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                                  <span>متوقف ⏸️</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleRepActive(r.id)}
+                                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition active:scale-95 cursor-pointer shadow-2xs border ${
+                                  r.active
+                                    ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200'
+                                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                                }`}
+                              >
+                                {r.active ? 'إيقاف التفعيل ⏸️' : 'تفعيل الحساب ▶️'}
+                              </button>
+                            </td>
+                            <td className="p-3 font-bold text-slate-700">
+                              {r._count?.contractedStores || 0} محل
+                            </td>
+                            <td className="p-3 font-bold text-[#0E4D38]">
+                              {r._count?.visits || 0} زيارة
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
@@ -1301,6 +1481,87 @@ export default function AdminApp() {
                 className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] px-5 py-2 rounded-xl text-xs font-black border border-[#D4AF37] shadow-sm transition active:scale-95 cursor-pointer"
               >
                 تأكيد وحفظ المحل
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* MODAL: ADD NEW SALES REP                                  */}
+      {/* ========================================================= */}
+      {newRepModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <form
+            onSubmit={handleCreateRep}
+            className="bg-white border border-[#c2e2d4] rounded-2xl shadow-2xl p-5 sm:p-6 max-w-md w-full flex flex-col gap-3.5"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold">
+                  👥
+                </div>
+                <h3 className="text-base font-black text-[#0E4D38]">إضافة مندوب مبيعات جديد</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNewRepModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">اسم المندوب الكامل *</label>
+              <input
+                type="text"
+                required
+                placeholder="مثال: علي الموسوي"
+                value={repForm.name}
+                onChange={(e) => setRepForm({ ...repForm, name: e.target.value })}
+                className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#0E4D38]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">رقم الهاتف / اسم المستخدم للدخول *</label>
+              <input
+                type="text"
+                required
+                placeholder="مثال: 07701234567 أو ali"
+                value={repForm.phone}
+                onChange={(e) => setRepForm({ ...repForm, phone: e.target.value })}
+                className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 outline-none font-mono focus:ring-2 focus:ring-[#0E4D38]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">كلمة المرور *</label>
+              <input
+                type="text"
+                required
+                placeholder="كلمة مرور المندوب للدخول للتطبيق"
+                value={repForm.password}
+                onChange={(e) => setRepForm({ ...repForm, password: e.target.value })}
+                className="w-full bg-[#f8faf9] border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 outline-none font-mono focus:ring-2 focus:ring-[#0E4D38]"
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block">يستخدمها المندوب مع رقم الهاتف لتسجيل الدخول في تطبيق الموبايل</span>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setNewRepModal(false)}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition"
+              >
+                إلغاء
+              </button>
+              <button
+                type="submit"
+                className="bg-[#0E4D38] hover:bg-[#0a3325] text-[#D4AF37] px-5 py-2 rounded-xl text-xs font-black border border-[#D4AF37] shadow-sm transition active:scale-95 cursor-pointer"
+              >
+                تأكيد وإضافة المندوب
               </button>
             </div>
           </form>

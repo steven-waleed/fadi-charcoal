@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting seed for "نظام إدارة وتوزيع الفحم لفادي"...');
+  console.log('🌱 Starting seed for "نظام إدارة وتوزيع الفحم"...');
 
   // 1. Clean existing records
   await prisma.conflictLog.deleteMany();
@@ -17,8 +17,8 @@ async function main() {
   // 2. Users (Admin + 3 Reps)
   const admin = await prisma.user.create({
     data: {
-      name: 'فادي (المدير العام)',
-      phone: '07700000000',
+      name: 'مدير النظام',
+      phone: 'admin',
       role: 'ADMIN',
       password: 'admin',
     },

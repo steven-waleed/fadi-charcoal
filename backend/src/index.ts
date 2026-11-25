@@ -79,7 +79,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     const cleanUser = String(username).trim();
     const cleanPass = String(password).trim();
     const lowerUser = cleanUser.toLowerCase();
-    const isAdminAlias = lowerUser === 'admin' || cleanUser === 'ادمن' || cleanUser === 'الادمن' || cleanUser === 'المدير' || cleanUser === 'فادي';
+    const isAdminAlias = lowerUser === 'admin' || cleanUser === 'ادمن' || cleanUser === 'الادمن' || cleanUser === 'المدير';
 
     const user = await prisma.user.findFirst({
       where: {
@@ -89,13 +89,16 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
           { name: { contains: cleanUser } },
           ...(isAdminAlias ? [{ role: 'ADMIN' as const }] : []),
         ],
-        active: true,
       },
       orderBy: { id: 'asc' },
     });
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'اسم المستخدم أو رقم الهاتف غير مسجل' });
+    }
+
+    if (!user.active) {
+      return res.status(403).json({ success: false, message: 'تم إيقاف تفعيل هذا الحساب من قبل الإدارة. يرجى مراجعة المسؤول.' });
     }
 
     const isPassValid =
@@ -123,13 +126,139 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
   }
 });
 
+// Get active reps for dropdowns and app feeds
 app.get('/api/reps', async (req: Request, res: Response) => {
   try {
     const reps = await prisma.user.findMany({
-      where: { active: true },
+      where: { active: true, role: 'REP' },
       orderBy: { id: 'asc' },
     });
     res.json({ success: true, data: reps });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Admin: Get all reps (both active and inactive) with statistics
+app.get('/api/admin/reps', async (req: Request, res: Response) => {
+  try {
+    const reps = await prisma.user.findMany({
+      where: { role: 'REP' },
+      include: {
+        _count: {
+          select: {
+            contractedStores: true,
+            visits: true,
+          },
+        },
+      },
+      orderBy: { id: 'asc' },
+    });
+    res.json({ success: true, data: reps });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Admin: Create new rep
+app.post('/api/admin/reps', async (req: Request, res: Response) => {
+  try {
+    const { name, phone, password } = req.body;
+    if (!name || !phone) {
+      return res.status(400).json({ success: false, message: 'يرجى إدخال اسم المندوب ورقم الهاتف / اسم المستخدم' });
+    }
+    const cleanName = String(name).trim();
+    const cleanPhone = String(phone).trim();
+    const cleanPass = password ? String(password).trim() : '123456';
+
+    const existing = await prisma.user.findFirst({
+      where: { phone: cleanPhone },
+    });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'رقم الهاتف أو اسم المستخدم مسجل مسبقاً لمندوب آخر' });
+    }
+
+    const newRep = await prisma.user.create({
+      data: {
+        name: cleanName,
+        phone: cleanPhone,
+        password: cleanPass,
+        role: 'REP',
+        active: true,
+      },
+    });
+
+    res.json({ success: true, message: `تمت إضافة المندوب (${newRep.name}) بنجاح`, data: newRep });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Admin: Toggle Rep Active / Inactive
+app.put('/api/admin/reps/:id/toggle', async (req: Request, res: Response) => {
+  try {
+    const repId = parseInt(req.params.id as string);
+    const rep = await prisma.user.findUnique({ where: { id: repId } });
+    if (!rep) {
+      return res.status(404).json({ success: false, message: 'المندوب غير موجود' });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: repId },
+      data: { active: !rep.active },
+    });
+
+    const statusMsg = updated.active
+      ? `تم تفعيل حساب المندوب (${updated.name}) بنجاح`
+      : `تم إيقاف تفعيل حساب المندوب (${updated.name}) بنجاح`;
+    res.json({ success: true, message: statusMsg, data: updated });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Admin: Update Rep (Name, Phone, Password)
+app.put('/api/admin/reps/:id', async (req: Request, res: Response) => {
+  try {
+    const repId = parseInt(req.params.id as string);
+    const { name, phone, password } = req.body;
+    const dataToUpdate: any = {};
+    if (name) dataToUpdate.name = String(name).trim();
+    if (phone) dataToUpdate.phone = String(phone).trim();
+    if (password) dataToUpdate.password = String(password).trim();
+
+    const updated = await prisma.user.update({
+      where: { id: repId },
+      data: dataToUpdate,
+    });
+
+    res.json({ success: true, message: 'تم تحديث بيانات المندوب بنجاح', data: updated });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Admin: Delete Rep
+app.delete('/api/admin/reps/:id', async (req: Request, res: Response) => {
+  try {
+    const repId = parseInt(req.params.id as string);
+    const rep = await prisma.user.findUnique({
+      where: { id: repId },
+      include: { _count: { select: { visits: true, contractedStores: true } } },
+    });
+    if (!rep) return res.status(404).json({ success: false, message: 'المندوب غير موجود' });
+
+    if (rep._count.visits > 0 || rep._count.contractedStores > 0) {
+      // Soft-deactivate if associated records exist
+      await prisma.user.update({
+        where: { id: repId },
+        data: { active: false },
+      });
+      return res.json({ success: true, message: 'تم تعطيل حساب المندوب وحفظ سجلاته التاريخية' });
+    }
+
+    await prisma.user.delete({ where: { id: repId } });
+    res.json({ success: true, message: 'تم حذف المندوب بنجاح' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

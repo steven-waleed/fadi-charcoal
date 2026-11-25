@@ -706,9 +706,9 @@ export default function App() {
               <Flame className="w-8 h-8 text-amber-400" />
             </div>
 
-            <h1 className="text-xl font-black tracking-tight text-white">فادي لتوزيع الفحم</h1>
+            <h1 className="text-xl font-black tracking-tight text-white">برنامج إدارة وتوزيع الفحم</h1>
             <p className="text-[#D4AF37] text-xs font-bold max-w-xs mx-auto leading-relaxed mt-1">
-              نظام تتبع وحفظ العملاء الميداني • بوابة المندوب
+              نظام إدارة المبيعات وتتبع خطوط السير • بوابة المندوب
             </p>
           </div>
 
@@ -730,7 +730,7 @@ export default function App() {
                 <input
                   type="text"
                   required
-                  placeholder="مثال: admin أو فادي أو 07700000000"
+                  placeholder="ادخل اسم المستخدم أو رقم الهاتف"
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
                   className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none shadow-2xs placeholder:text-slate-400"
@@ -765,66 +765,6 @@ export default function App() {
                 <span>{loggingIn ? 'جاري التحقق...' : 'تسجيل الدخول'}</span>
               </button>
             </form>
-
-            {/* Quick 1-Tap Login helpers for easy phone testing */}
-            <div className="mt-6 pt-4 border-t border-slate-100">
-              <span className="text-[11px] text-slate-500 font-bold block mb-2.5 text-center">أو اختر للدخول السريع بضغطة واحدة:</span>
-              <div className="space-y-2">
-                {/* 👑 General Manager Quick Login */}
-                <button
-                  type="button"
-                  onClick={() => handleLogin('admin', 'admin')}
-                  className="w-full bg-gradient-to-r from-[#0E4D38]/10 via-[#D4AF37]/25 to-[#0E4D38]/10 hover:from-[#0E4D38]/20 hover:to-[#D4AF37]/40 border-2 border-[#D4AF37] p-3 rounded-2xl text-right flex items-center justify-between text-xs transition shadow-md group active:scale-98"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#D4AF37] to-[#b89628] text-slate-950 flex items-center justify-center font-black shadow-xs text-base">
-                      👑
-                    </span>
-                    <div>
-                      <span className="font-black text-[#0E4D38] block text-xs sm:text-sm">المدير العام (فادي الفهد)</span>
-                      <span className="text-[10px] text-slate-600 font-mono">المستخدم: admin • كلمة المرور: admin</span>
-                    </div>
-                  </div>
-                  <span className="text-[11px] bg-[#0E4D38] text-[#D4AF37] font-black px-3 py-1.5 rounded-xl border border-[#D4AF37] shadow-xs group-hover:scale-105 transition">دخول المدير ⚡</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleLogin('07701111111', '123')}
-                  className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-sky-300 p-2.5 rounded-2xl text-right flex items-center justify-between text-xs transition shadow-2xs"
-                >
-                  <div>
-                    <span className="font-black text-slate-900 block">أحمد التميمي (مندوب 1)</span>
-                    <span className="text-[10px] text-slate-500 font-mono">هاتف: 07701111111 • رمز: 123</span>
-                  </div>
-                  <span className="text-[11px] bg-white text-sky-700 font-bold px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">دخول ⚡</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleLogin('07702222222', '123')}
-                  className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-amber-300 p-2.5 rounded-2xl text-right flex items-center justify-between text-xs transition shadow-2xs"
-                >
-                  <div>
-                    <span className="font-black text-slate-900 block">حيدر الكرخي (مندوب 2)</span>
-                    <span className="text-[10px] text-slate-500 font-mono">هاتف: 07702222222 • رمز: 123</span>
-                  </div>
-                  <span className="text-[11px] bg-white text-amber-700 font-bold px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">دخول ⚡</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleLogin('07703333333', '123')}
-                  className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-emerald-300 p-2.5 rounded-2xl text-right flex items-center justify-between text-xs transition shadow-2xs"
-                >
-                  <div>
-                    <span className="font-black text-slate-900 block">عمر الزيدي (مندوب 3)</span>
-                    <span className="text-[10px] text-slate-500 font-mono">هاتف: 07703333333 • رمز: 123</span>
-                  </div>
-                  <span className="text-[11px] bg-white text-emerald-700 font-bold px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">دخول ⚡</span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -866,7 +806,7 @@ export default function App() {
             </div>
             <div className="min-w-0">
               <h1 className="text-xs sm:text-sm font-black text-white tracking-tight leading-none truncate">
-                فادي لتوزيع الفحم
+                إدارة وتوزيع الفحم
               </h1>
               <p className="text-[10px] font-bold text-[#D4AF37] mt-0.5 truncate">
                 نظام تتبع وحفظ العملاء الميداني
@@ -876,23 +816,20 @@ export default function App() {
 
           {/* User Badge, GPS Telemetry & Logout */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Live GPS Telemetry Badge */}
-            <div className="flex items-center gap-1.5 bg-black/25 backdrop-blur-md px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border border-white/20 text-[11px] font-bold text-white shadow-2xs">
+            {/* Live GPS Telemetry Badge - Compact */}
+            <div className="flex items-center gap-1 bg-black/25 backdrop-blur-md px-1.5 py-1 sm:px-2 sm:py-1 rounded-xl border border-white/20 text-[10px] font-bold text-white shadow-2xs" title="GPS نشط">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
               </span>
-              <span className="font-mono text-emerald-300 text-[10px] font-bold hidden xs:inline">
-                {liveGps.lat.toFixed(3)},{liveGps.lng.toFixed(3)}
-              </span>
-              <span className="text-[10px] text-emerald-300 font-bold xs:hidden">GPS نشط</span>
+              <span className="text-[10px] text-emerald-300 font-bold hidden sm:inline">GPS</span>
             </div>
 
-            {/* Rep User Badge */}
-            <div className="flex items-center gap-1.5 bg-black/25 backdrop-blur-md border border-[#D4AF37]/60 px-2 sm:px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-2xs">
-              <UserIcon className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <div className="text-right">
-                <span className="text-white block font-black leading-tight text-[11px] truncate max-w-[70px] xs:max-w-[110px]">
+            {/* Rep User Badge - Full Name Display (Never Truncated) */}
+            <div className="flex items-center gap-1.5 bg-black/30 backdrop-blur-md border border-[#D4AF37] px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-2xs">
+              <UserIcon className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+              <div className="text-right whitespace-nowrap">
+                <span className="text-white block font-black leading-tight text-xs whitespace-nowrap">
                   {currentUser.name}
                 </span>
               </div>
@@ -901,7 +838,7 @@ export default function App() {
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-white/20 bg-black/25 hover:bg-rose-600 text-white flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer"
+              className="w-8 h-8 rounded-xl border border-white/20 bg-black/25 hover:bg-rose-600 text-white flex items-center justify-center transition-all shadow-2xs active:scale-95 cursor-pointer shrink-0"
               title="تسجيل الخروج"
             >
               <LogOut className="w-4 h-4" />
@@ -1024,10 +961,10 @@ export default function App() {
                 </span>
                 <div>
                   <h2 className="text-base sm:text-lg font-black text-white">
-                    لوحة تحكم المدير العام (فادي الفهد)
+                    لوحة تحكم المدير العام
                   </h2>
                   <p className="text-xs text-[#D4AF37] font-bold mt-0.5">
-                    الإشراف الميداني المركزي • شركة فادي لتوزيع الفحم
+                    الإشراف الميداني المركزي • نظام إدارة وتوزيع الفحم
                   </p>
                 </div>
               </div>
@@ -1964,7 +1901,7 @@ export default function App() {
               <CheckCircle2 className="w-8 h-8 text-emerald-600" />
             </div>
             <h3 className="text-base font-black text-slate-900 mb-1">تم اكتمال العمل لهذا اليوم بنجاح! 🎉</h3>
-            <p className="text-xs text-slate-500 font-medium mb-4">شكراً لجهودك الميدانية في برنامج توزيع الفحم لفادي.</p>
+            <p className="text-xs text-slate-500 font-medium mb-4">شكراً لجهودك الميدانية في برنامج إدارة وتوزيع الفحم.</p>
 
             <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 mb-5 text-xs shadow-2xs">
               <div>
