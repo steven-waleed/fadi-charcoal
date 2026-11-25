@@ -30,7 +30,7 @@ export default function App() {
   // Connection & Data
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [reps, setReps] = useState<any[]>([]);
-  const selectedRepId = currentUser?.id || 6;
+  const selectedRepId = currentUser?.id || 0;
   const [zones, setZones] = useState<any[]>([]);
   
   // Views: 'ADMIN_OVERVIEW' (لوحة الإحصائيات) | 'ROUTE' (إظهار مساري لليوم) | 'LOCKED_MAP' (خريطة المتاجر المقفلة) | 'NEW_STORE' (تسجيل متجر جديد)
@@ -48,7 +48,8 @@ export default function App() {
   const [routeData, setRouteData] = useState<any>(null);
   const [lockedStores, setLockedStores] = useState<any[]>([]);
   const [adminStats, setAdminStats] = useState<any>(null);
-  const [inspectedRepId, setInspectedRepId] = useState<number>(3);
+  const [adminReps, setAdminReps] = useState<any[]>([]);
+  const [inspectedRepId, setInspectedRepId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [workdayStarted, setWorkdayStarted] = useState<boolean>(true);
 
@@ -155,6 +156,10 @@ export default function App() {
         fetch(`${API_BASE}/admin/dashboard`)
           .then(r => r.json())
           .then(d => { if (d.success && d.stats) setAdminStats(d.stats); })
+          .catch(() => {});
+        fetch(`${API_BASE}/admin/reps`)
+          .then(r => r.json())
+          .then(d => { if (d.success && d.reps) setAdminReps(d.reps); })
           .catch(() => {});
       }
       const [zonesRes, routeRes] = await Promise.all([
@@ -983,25 +988,25 @@ export default function App() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
               <span className="text-[11px] font-bold text-slate-500 block mb-1">إجمالي المتاجر</span>
-              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalStores || 17}</span>
+              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalStores ?? 0}</span>
               <span className="text-[10px] text-slate-500 font-bold block mt-0.5">محل مسجل في بغداد</span>
             </div>
 
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
               <span className="text-[11px] font-bold text-slate-500 block mb-1">المندوبون الميدانيون</span>
-              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalReps || 3}</span>
+              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalReps ?? 0}</span>
               <span className="text-[10px] text-slate-500 font-bold block mt-0.5">مندوبين نشطين 🟢</span>
             </div>
 
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
               <span className="text-[11px] font-bold text-slate-500 block mb-1">محطات اليوم</span>
-              <span className="text-2xl font-black text-[#b89628]">{adminStats?.plannedStops || 10}</span>
+              <span className="text-2xl font-black text-[#b89628]">{adminStats?.plannedStops ?? 0}</span>
               <span className="text-[10px] text-[#b89628] font-bold block mt-0.5">محطة مجدولة للزيارة</span>
             </div>
 
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
               <span className="text-[11px] font-bold text-slate-500 block mb-1">الزيارات المكتملة</span>
-              <span className="text-2xl font-black text-emerald-600">{adminStats?.completedStops || 0}</span>
+              <span className="text-2xl font-black text-emerald-600">{adminStats?.completedStops ?? 0}</span>
               <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">زيارة موثقة بالـ GPS ✅</span>
             </div>
           </div>
@@ -1022,103 +1027,56 @@ export default function App() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Rep 1: Haider */}
-              <div className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-black text-sm text-slate-900">🚗 حيدر الكرخي</span>
-                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
-                      نشط 🟢
-                    </span>
-                  </div>
-                  <span className="text-xs text-slate-500 block mb-1">قطاع: الكرخ والمنصور</span>
-                  <span className="text-xs text-slate-600 font-mono block">هاتف: 07702222222</span>
-                </div>
-                <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInspectedRepId(3);
-                      setActiveTab('ROUTE');
-                    }}
-                    className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
-                  >
-                    مراقبة مساره 👁️
-                  </button>
-                  <a
-                    href="tel:07702222222"
-                    className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
-                  >
-                    📞
-                  </a>
-                </div>
+            {adminReps.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">
+                <Users className="w-10 h-10 mx-auto mb-2 text-slate-400 opacity-60" />
+                <p className="font-bold text-sm text-slate-800">لا يوجد مناديب مسجلين حالياً (0 مندوب)</p>
+                <p className="text-xs text-slate-500 mt-1">البيانات مصفّرة وجاهزة. يمكنك إضافة المناديب الفعليين من لوحة تحكم الكمبيوتر.</p>
+                <a
+                  href="https://fadi-charcoal-admin.web.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-[#0E4D38] hover:bg-[#0a3325] text-white rounded-xl text-xs font-black shadow-xs border border-[#D4AF37]"
+                >
+                  <span>🖥️ فتح لوحة التحكم وإضافة مناديب</span>
+                </a>
               </div>
-
-              {/* Rep 2: Ahmed */}
-              <div className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-black text-sm text-slate-900">🚗 أحمد التميمي</span>
-                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
-                      نشط 🟢
-                    </span>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {adminReps.map((rep: any) => (
+                  <div key={rep.id} className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-black text-sm text-slate-900">🚗 {rep.name}</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${rep.active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                          {rep.active ? 'نشط 🟢' : 'متوقف ⏸️'}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-500 block mb-1">المحلات: {rep._count?.contractedStores || 0}</span>
+                      <span className="text-xs text-slate-600 font-mono block">هاتف: {rep.phone}</span>
+                    </div>
+                    <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInspectedRepId(rep.id);
+                          setActiveTab('ROUTE');
+                        }}
+                        className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
+                      >
+                        مراقبة مساره 👁️
+                      </button>
+                      <a
+                        href={`tel:${rep.phone}`}
+                        className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
+                      >
+                        📞
+                      </a>
+                    </div>
                   </div>
-                  <span className="text-xs text-slate-500 block mb-1">قطاع: الرصافة والكرادة</span>
-                  <span className="text-xs text-slate-600 font-mono block">هاتف: 07701111111</span>
-                </div>
-                <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInspectedRepId(2);
-                      setActiveTab('ROUTE');
-                    }}
-                    className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
-                  >
-                    مراقبة مساره 👁️
-                  </button>
-                  <a
-                    href="tel:07701111111"
-                    className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
-                  >
-                    📞
-                  </a>
-                </div>
+                ))}
               </div>
-
-              {/* Rep 3: Omar */}
-              <div className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-black text-sm text-slate-900">🚗 عمر الزيدي</span>
-                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
-                      نشط 🟢
-                    </span>
-                  </div>
-                  <span className="text-xs text-slate-500 block mb-1">قطاع: الجادرية والدورة</span>
-                  <span className="text-xs text-slate-600 font-mono block">هاتف: 07703333333</span>
-                </div>
-                <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInspectedRepId(4);
-                      setActiveTab('ROUTE');
-                    }}
-                    className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
-                  >
-                    مراقبة مساره 👁️
-                  </button>
-                  <a
-                    href="tel:07703333333"
-                    className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
-                  >
-                    📞
-                  </a>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Quick System Shortcuts */}
@@ -1175,44 +1133,25 @@ export default function App() {
                 </span>
               </div>
               <div className="flex gap-1.5 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => setInspectedRepId(3)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-2xs ${
-                    inspectedRepId === 3
-                      ? 'bg-[#0E4D38] text-white border-2 border-[#D4AF37] shadow-sm'
-                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                  }`}
-                >
-                  <span>🚗 حيدر الكرخي</span>
-                  {inspectedRepId === 3 && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setInspectedRepId(2)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-2xs ${
-                    inspectedRepId === 2
-                      ? 'bg-[#0E4D38] text-white border-2 border-[#D4AF37] shadow-sm'
-                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                  }`}
-                >
-                  <span>🚗 أحمد التميمي</span>
-                  {inspectedRepId === 2 && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setInspectedRepId(4)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-2xs ${
-                    inspectedRepId === 4
-                      ? 'bg-[#0E4D38] text-white border-2 border-[#D4AF37] shadow-sm'
-                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                  }`}
-                >
-                  <span>🚗 عمر الزيدي</span>
-                  {inspectedRepId === 4 && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>}
-                </button>
+                {adminReps.length === 0 ? (
+                  <span className="text-xs text-slate-400 font-bold py-1">لا يوجد مناديب مسجلين حالياً</span>
+                ) : (
+                  adminReps.map((rep: any) => (
+                    <button
+                      key={rep.id}
+                      type="button"
+                      onClick={() => setInspectedRepId(rep.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-2xs ${
+                        inspectedRepId === rep.id
+                          ? 'bg-[#0E4D38] text-white border-2 border-[#D4AF37] shadow-sm'
+                          : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                      }`}
+                    >
+                      <span>🚗 {rep.name}</span>
+                      {inspectedRepId === rep.id && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           )}

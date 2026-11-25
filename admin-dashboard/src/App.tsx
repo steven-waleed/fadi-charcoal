@@ -683,13 +683,13 @@ export default function AdminApp() {
           <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
             <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[95px]">
               <span className="text-[10px] font-bold text-slate-500 block">نقاط البيع</span>
-              <div className="text-sm font-black text-[#0E4D38]">{stats?.totalStores || 15} محل</div>
+              <div className="text-sm font-black text-[#0E4D38]">{stats?.totalStores ?? 0} محل</div>
             </div>
 
             <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[125px]">
               <span className="text-[10px] font-bold text-slate-500 block">المحطات المنجزة اليوم</span>
               <div className="text-sm font-black text-[#0E4D38]">
-                {stats?.completedStops || 0} من {stats?.plannedStops || 10}
+                {stats?.completedStops ?? 0} من {stats?.plannedStops ?? 0}
               </div>
             </div>
 
@@ -702,7 +702,9 @@ export default function AdminApp() {
 
             <div className="bg-[#f8faf9] border border-[#e2e8f0] px-3 py-1.5 rounded-xl shrink-0 shadow-2xs text-center min-w-[100px]">
               <span className="text-[10px] font-bold text-slate-500 block">انضباط الـ GPS</span>
-              <div className="text-sm font-black text-emerald-600">{stats?.complianceRate || 100}%</div>
+              <div className="text-sm font-black text-emerald-600">
+                {stats?.plannedStops ? Math.round(((stats?.completedStops || 0) / stats.plannedStops) * 100) : 100}%
+              </div>
             </div>
           </div>
         </header>

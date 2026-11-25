@@ -1027,7 +1027,7 @@ app.get('/api/admin/dashboard', async (req: Request, res: Response) => {
       include: { stops: true },
     });
 
-    const plannedStops = todayRoute ? todayRoute.stops.length : 10;
+    const plannedStops = todayRoute ? todayRoute.stops.length : 0;
     const completedStops = todayRoute ? todayRoute.stops.filter((s) => s.status === 'VISITED').length : 0;
     const skippedStops = todayRoute ? todayRoute.stops.filter((s) => s.status === 'SKIPPED').length : 0;
 
