@@ -4,7 +4,7 @@ import {
   PlusCircle, Wifi, WifiOff, RefreshCw, Play, ChevronLeft, ArrowRight,
   Package, DollarSign, Clock, ShieldAlert, XCircle, Flame, Store, Lock,
   Calendar, Check, AlertCircle, Eye, Compass, Flag, LogIn, LogOut, User as UserIcon, KeyRound, RotateCcw,
-  BarChart3
+  BarChart3, Users
 } from 'lucide-react';
 import L from 'leaflet';
 import { db, type SyncQueueItem } from './db';
