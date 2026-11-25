@@ -4,7 +4,7 @@ import {
   PlusCircle, Wifi, WifiOff, RefreshCw, Play, ChevronLeft, ArrowRight,
   Package, DollarSign, Clock, ShieldAlert, XCircle, Flame, Store, Lock,
   Calendar, Check, AlertCircle, Eye, Compass, Flag, LogIn, LogOut, User as UserIcon, KeyRound, RotateCcw,
-  BarChart3, Users
+  BarChart3, Users, Trash2, Search, Filter, X, Image as ImageIcon
 } from 'lucide-react';
 import L from 'leaflet';
 import { db, type SyncQueueItem } from './db';
@@ -49,6 +49,15 @@ export default function App() {
   const [lockedStores, setLockedStores] = useState<any[]>([]);
   const [adminStats, setAdminStats] = useState<any>(null);
   const [adminReps, setAdminReps] = useState<any[]>([]);
+  const [storesList, setStoresList] = useState<any[]>([]);
+  const [visitsFeed, setVisitsFeed] = useState<any[]>([]);
+  const [skipsList, setSkipsList] = useState<any[]>([]);
+  const [adminSubTab, setAdminSubTab] = useState<'reps' | 'stores' | 'audit' | 'skips'>('reps');
+  const [newRepModal, setNewRepModal] = useState<boolean>(false);
+  const [repForm, setRepForm] = useState<{ name: string; phone: string; password: string }>({ name: '', phone: '', password: '123' });
+  const [storesSearch, setStoresSearch] = useState<string>('');
+  const [selectedZoneFilter, setSelectedZoneFilter] = useState<string>('');
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [inspectedRepId, setInspectedRepId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [workdayStarted, setWorkdayStarted] = useState<boolean>(true);
@@ -160,6 +169,18 @@ export default function App() {
         fetch(`${API_BASE}/admin/reps`)
           .then(r => r.json())
           .then(d => { if (d.success && d.reps) setAdminReps(d.reps); })
+          .catch(() => {});
+        fetch(`${API_BASE}/stores`)
+          .then(r => r.json())
+          .then(d => { if (d.success && Array.isArray(d.data)) setStoresList(d.data); })
+          .catch(() => {});
+        fetch(`${API_BASE}/admin/visits-feed`)
+          .then(r => r.json())
+          .then(d => { if (d.success && Array.isArray(d.data)) setVisitsFeed(d.data); })
+          .catch(() => {});
+        fetch(`${API_BASE}/admin/skips`)
+          .then(r => r.json())
+          .then(d => { if (d.success && Array.isArray(d.data)) setSkipsList(d.data); })
           .catch(() => {});
       }
       const [zonesRes, routeRes] = await Promise.all([
@@ -298,6 +319,89 @@ export default function App() {
     setRouteData(null);
     resetAllSessionState();
     showToast('تم تسجيل الخروج بنجاح وتفريغ البيانات');
+  };
+
+  // Admin Operations Handlers
+  const handleCreateRep = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!repForm.name.trim() || !repForm.phone.trim()) {
+      showToast('يرجى كتابة اسم المندوب ورقم هاتفه');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/admin/reps`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(repForm),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message);
+        setNewRepModal(false);
+        setRepForm({ name: '', phone: '', password: '123' });
+        fetchInitialData();
+      } else {
+        showToast(json.message || 'فشل إضافة المندوب');
+      }
+    } catch (e) {
+      showToast('حدث خطأ أثناء إضافة المندوب');
+    }
+  };
+
+  const handleToggleRepActive = async (repId: number) => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/reps/${repId}/toggle`, {
+        method: 'PUT',
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message);
+        fetchInitialData();
+      } else {
+        showToast('فشل تعديل حالة المندوب');
+      }
+    } catch (e) {
+      showToast('فشل تعديل حالة المندوب');
+    }
+  };
+
+  const handleDeleteRep = async (repId: number) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا المندوب؟')) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/reps/${repId}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message);
+        fetchInitialData();
+      } else {
+        showToast('فشل حذف المندوب');
+      }
+    } catch (e) {
+      showToast('فشل حذف المندوب');
+    }
+  };
+
+  const handleUpdateCycle = async (storeId: number, days: number) => {
+    if (!days || days < 1) {
+      showToast('يرجى تحديد عدد أيام صالح (1 أو أكثر)');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/admin/stores/${storeId}/cycle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ revisitCycleDays: days }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message || 'تم تحديث دورة الزيارة');
+        fetchInitialData();
+      }
+    } catch (e) {
+      showToast('فشل تعديل دورة التكرار');
+    }
   };
 
   // Next Stop Calculation:
@@ -957,30 +1061,30 @@ export default function App() {
       {/* VIEW: ADMIN_OVERVIEW (Executive Dashboard with OPDC Theme) */}
       {currentUser?.role === 'ADMIN' && activeTab === 'ADMIN_OVERVIEW' && (
         <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col gap-4 px-3 pt-3">
-          {/* Welcome Executive Card */}
-          <div className="bg-gradient-to-r from-[#0a3325] via-[#0E4D38] to-[#16654a] rounded-3xl p-4 sm:p-6 text-white border-2 border-[#D4AF37] shadow-opdc relative overflow-hidden">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          {/* Welcome Executive Card with Add Rep Button */}
+          <div className="bg-gradient-to-r from-[#0a3325] via-[#0E4D38] to-[#16654a] rounded-3xl p-4 sm:p-5 text-white border-2 border-[#D4AF37] shadow-opdc relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#b89628] text-slate-950 flex items-center justify-center font-black shadow-lg text-2xl">
+                <span className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#b89628] text-slate-950 flex items-center justify-center font-black shadow-lg text-xl shrink-0">
                   👑
                 </span>
                 <div>
-                  <h2 className="text-base sm:text-lg font-black text-white">
-                    لوحة تحكم المدير العام
+                  <h2 className="text-sm sm:text-base font-black text-white leading-tight">
+                    لوحة تحكم وإدارة المنظومة
                   </h2>
-                  <p className="text-xs text-[#D4AF37] font-bold mt-0.5">
-                    الإشراف الميداني المركزي • نظام إدارة وتوزيع الفحم
+                  <p className="text-[11px] text-[#D4AF37] font-bold mt-0.5">
+                    التحكم المركزي بالمناديب والمحلات والزيارات الميدانية
                   </p>
                 </div>
               </div>
-              <a
-                href="https://fadi-charcoal-admin.web.app"
-                target="_blank"
-                rel="noreferrer"
-                className="bg-gradient-to-r from-[#D4AF37] to-[#b89628] hover:from-[#b89628] hover:to-[#D4AF37] text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl border border-white/30 shadow-md flex items-center gap-2 transition active:scale-95"
+              <button
+                type="button"
+                onClick={() => setNewRepModal(true)}
+                className="bg-gradient-to-r from-[#D4AF37] to-[#b89628] hover:from-[#b89628] hover:to-[#D4AF37] text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl border border-white/30 shadow-md flex items-center gap-2 transition active:scale-95 shrink-0 cursor-pointer"
               >
-                <span>🖥️ فتح لوحة تحكم الكمبيوتر</span>
-              </a>
+                <PlusCircle className="w-4 h-4" />
+                <span>+ إضافة مندوب جديد</span>
+              </button>
             </div>
           </div>
 
@@ -988,14 +1092,16 @@ export default function App() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
               <span className="text-[11px] font-bold text-slate-500 block mb-1">إجمالي المتاجر</span>
-              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalStores ?? 0}</span>
+              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalStores ?? storesList.length}</span>
               <span className="text-[10px] text-slate-500 font-bold block mt-0.5">محل مسجل في بغداد</span>
             </div>
 
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
-              <span className="text-[11px] font-bold text-slate-500 block mb-1">المندوبون الميدانيون</span>
-              <span className="text-2xl font-black text-[#0E4D38]">{adminStats?.totalReps ?? 0}</span>
-              <span className="text-[10px] text-slate-500 font-bold block mt-0.5">مندوبين نشطين 🟢</span>
+              <span className="text-[11px] font-bold text-slate-500 block mb-1">فريق المناديب</span>
+              <span className="text-2xl font-black text-[#0E4D38]">{adminReps.length}</span>
+              <span className="text-[10px] text-slate-500 font-bold block mt-0.5">
+                {adminReps.filter((r: any) => r.active).length} مفعّل • {adminReps.filter((r: any) => !r.active).length} متوقف
+              </span>
             </div>
 
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
@@ -1006,85 +1112,410 @@ export default function App() {
 
             <div className="bg-white rounded-2xl p-4 border border-[#c2e2d4] shadow-opdc text-center relative overflow-hidden group hover:border-[#D4AF37] transition">
               <span className="text-[11px] font-bold text-slate-500 block mb-1">الزيارات المكتملة</span>
-              <span className="text-2xl font-black text-emerald-600">{adminStats?.completedStops ?? 0}</span>
+              <span className="text-2xl font-black text-emerald-600">{adminStats?.completedStops ?? visitsFeed.length}</span>
               <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">زيارة موثقة بالـ GPS ✅</span>
             </div>
           </div>
 
-          {/* Fleet Operations & Live Monitoring */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-opdc">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                <h3 className="font-black text-sm text-[#0E4D38]">حالة أسطول المندوبين الميدانيين اليوم</h3>
-              </div>
-              <button
-                onClick={() => fetchInitialData()}
-                className="text-[11px] font-bold text-[#0E4D38] hover:text-[#0a3325] flex items-center gap-1 bg-[#f0f7f3] px-2.5 py-1 rounded-lg border border-[#c2e2d4]"
-              >
-                <RefreshCw className="w-3 h-3" />
-                <span>تحديث الحالة</span>
-              </button>
-            </div>
+          {/* Admin Management Sub-Tabs (Integrated into this mobile view) */}
+          <div className="flex bg-[#e8eee9] p-1 gap-1 rounded-2xl border border-[#c2e2d4] shadow-2xs overflow-x-auto scrollbar-none">
+            <button
+              type="button"
+              onClick={() => setAdminSubTab('reps')}
+              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                adminSubTab === 'reps'
+                  ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>👥 فريق المناديب ({adminReps.length})</span>
+            </button>
 
-            {adminReps.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
-                <Users className="w-10 h-10 mx-auto mb-2 text-slate-400 opacity-60" />
-                <p className="font-bold text-sm text-slate-800">لا يوجد مناديب مسجلين حالياً (0 مندوب)</p>
-                <p className="text-xs text-slate-500 mt-1">البيانات مصفّرة وجاهزة. يمكنك إضافة المناديب الفعليين من لوحة تحكم الكمبيوتر.</p>
-                <a
-                  href="https://fadi-charcoal-admin.web.app"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-[#0E4D38] hover:bg-[#0a3325] text-white rounded-xl text-xs font-black shadow-xs border border-[#D4AF37]"
+            <button
+              type="button"
+              onClick={() => setAdminSubTab('stores')}
+              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                adminSubTab === 'stores'
+                  ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+              }`}
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>🏬 إدارة المحلات ({storesList.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setAdminSubTab('audit')}
+              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                adminSubTab === 'audit'
+                  ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+              }`}
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span>📸 تدقيق الزيارات ({visitsFeed.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setAdminSubTab('skips')}
+              className={`flex-1 min-w-[95px] py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                adminSubTab === 'skips'
+                  ? 'bg-[#0E4D38] text-white shadow-md border-b-2 border-[#D4AF37]'
+                  : 'text-[#0a3325] hover:text-[#0E4D38] font-bold'
+              }`}
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>⚠️ التخطي والتداخل ({skipsList.length})</span>
+            </button>
+          </div>
+
+          {/* SUB-SECTION 1: REPS MANAGEMENT */}
+          {adminSubTab === 'reps' && (
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-opdc flex flex-col gap-3">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  <h3 className="font-black text-sm text-[#0E4D38]">فريق المناديب والتحكم بالحسابات</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setNewRepModal(true)}
+                  className="bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-bold py-1.5 px-3 rounded-xl border border-[#D4AF37] transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
                 >
-                  <span>🖥️ فتح لوحة التحكم وإضافة مناديب</span>
-                </a>
+                  <PlusCircle className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <span>إضافة مندوب</span>
+                </button>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {adminReps.map((rep: any) => (
-                  <div key={rep.id} className="bg-[#f4f6f8] rounded-xl p-3 border border-slate-200 hover:border-[#D4AF37] transition flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-black text-sm text-slate-900">🚗 {rep.name}</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${rep.active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                          {rep.active ? 'نشط 🟢' : 'متوقف ⏸️'}
-                        </span>
+
+              {adminReps.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">
+                  <Users className="w-12 h-12 mx-auto mb-2 text-slate-300 opacity-80" />
+                  <p className="font-bold text-sm text-slate-800">لا يوجد مناديب مسجلين حالياً (0 مندوب)</p>
+                  <p className="text-xs text-slate-500 mt-1">المنظومة مصفّرة وجاهزة. يمكنك إضافة أول مندوب مبيعات الآن وتحديد كلمة مروره.</p>
+                  <button
+                    type="button"
+                    onClick={() => setNewRepModal(true)}
+                    className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#0E4D38] hover:bg-[#0a3325] text-white rounded-xl text-xs font-black shadow-xs border border-[#D4AF37] cursor-pointer"
+                  >
+                    <PlusCircle className="w-4 h-4 text-[#D4AF37]" />
+                    <span>+ إضافة مندوب مبيعات جديد</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {adminReps.map((rep: any) => (
+                    <div
+                      key={rep.id}
+                      className={`rounded-2xl p-3.5 border transition flex flex-col justify-between ${
+                        rep.active
+                          ? 'bg-[#f4f6f8] border-slate-200 hover:border-[#D4AF37]'
+                          : 'bg-rose-50/50 border-rose-200'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="w-7 h-7 rounded-lg bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-xs">
+                              🚗
+                            </span>
+                            <span className="font-black text-sm text-slate-900">{rep.name}</span>
+                          </div>
+                          <span
+                            className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
+                              rep.active
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                : 'bg-rose-100 text-rose-800 border-rose-200'
+                            }`}
+                          >
+                            {rep.active ? '🟢 نشط ومفعّل' : '⏸️ متوقف ومحظور'}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs py-2 bg-white/70 rounded-xl px-2.5 my-2 border border-slate-100">
+                          <div>
+                            <span className="text-[10px] text-slate-400 block font-bold">اسم الدخول / الهاتف:</span>
+                            <span className="font-mono font-bold text-slate-700">{rep.phone}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 block font-bold">المحلات المرتبطة:</span>
+                            <span className="font-bold text-[#0E4D38]">{rep._count?.contractedStores || 0} محل</span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-xs text-slate-500 block mb-1">المحلات: {rep._count?.contractedStores || 0}</span>
-                      <span className="text-xs text-slate-600 font-mono block">هاتف: {rep.phone}</span>
+
+                      <div className="mt-2 pt-2 border-t border-slate-200/80 flex items-center gap-2">
+                        {/* Toggle Active Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleRepActive(rep.id)}
+                          className={`flex-1 py-1.5 px-2.5 rounded-xl text-xs font-black transition shadow-2xs border cursor-pointer active:scale-95 ${
+                            rep.active
+                              ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200'
+                              : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                          }`}
+                        >
+                          {rep.active ? 'إيقاف التفعيل ⏸️' : 'تفعيل الحساب ▶️'}
+                        </button>
+
+                        {/* Monitor Route Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInspectedRepId(rep.id);
+                            setActiveTab('ROUTE');
+                          }}
+                          className="bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-bold py-1.5 px-2.5 rounded-xl border border-[#D4AF37] transition shadow-2xs cursor-pointer active:scale-95"
+                          title="مراقبة مساره الميداني على الخريطة"
+                        >
+                          👁️ مساره
+                        </button>
+
+                        {/* Delete Rep Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRep(rep.id)}
+                          className="bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 hover:border-rose-300 p-1.5 rounded-xl transition cursor-pointer active:scale-95"
+                          title="حذف المندوب"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="mt-3 pt-2 border-t border-slate-200 flex gap-2">
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SUB-SECTION 2: STORES MANAGEMENT */}
+          {adminSubTab === 'stores' && (
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-opdc flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <h3 className="font-black text-sm text-[#0E4D38]">إدارة المحلات المسجلة وتعديل دورة الزيارة</h3>
+                </div>
+                <span className="text-xs font-bold text-slate-500">إجمالي المحلات: {storesList.length}</span>
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-slate-400 absolute right-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="ابحث باسم المحل أو هاتف المسؤول..."
+                    value={storesSearch}
+                    onChange={(e) => setStoresSearch(e.target.value)}
+                    className="w-full pr-9 pl-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E4D38]"
+                  />
+                </div>
+                <select
+                  value={selectedZoneFilter}
+                  onChange={(e) => setSelectedZoneFilter(e.target.value)}
+                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none"
+                >
+                  <option value="">جميع المناطق ({zones.length})</option>
+                  {zones.map((z: any) => (
+                    <option key={z.id} value={z.name}>{z.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Stores Grid / List */}
+              {(() => {
+                const filtered = storesList.filter((s: any) => {
+                  const matchesSearch = !storesSearch || s.name?.toLowerCase().includes(storesSearch.toLowerCase()) || s.phone?.includes(storesSearch);
+                  const matchesZone = !selectedZoneFilter || s.zone?.name === selectedZoneFilter;
+                  return matchesSearch && matchesZone;
+                });
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-slate-500">
+                      <Store className="w-12 h-12 mx-auto mb-2 text-slate-300 opacity-80" />
+                      <p className="font-bold text-sm text-slate-800">لا توجد متاجر مسجلة حالياً</p>
+                      <p className="text-xs text-slate-500 mt-1">يقوم المناديب بتسجيل المتاجر ميدانياً وتأكيد مواقعها الجغرافية.</p>
                       <button
                         type="button"
-                        onClick={() => {
-                          setInspectedRepId(rep.id);
-                          setActiveTab('ROUTE');
-                        }}
-                        className="flex-1 bg-[#0E4D38] hover:bg-[#0a3325] text-white text-xs font-black py-1.5 rounded-lg border border-[#D4AF37] transition shadow-xs"
+                        onClick={() => setActiveTab('NEW_STORE')}
+                        className="inline-flex items-center gap-1.5 mt-3 px-3.5 py-2 bg-[#0E4D38] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                       >
-                        مراقبة مساره 👁️
+                        <PlusCircle className="w-4 h-4 text-[#D4AF37]" />
+                        <span>تسجيل متجر جديد الآن</span>
                       </button>
-                      <a
-                        href={`tel:${rep.phone}`}
-                        className="bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 transition"
-                      >
-                        📞
-                      </a>
                     </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {filtered.map((store: any) => (
+                      <div key={store.id} className="bg-[#f8faf9] border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between hover:border-[#D4AF37] transition">
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="font-black text-sm text-slate-900">{store.name}</span>
+                            <span className="text-[10px] font-bold bg-[#e8f3ee] text-[#0E4D38] px-2 py-0.5 rounded-lg border border-[#c2e2d4]">
+                              📍 {store.zone?.name || 'بغداد'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-500 space-y-0.5 mb-2">
+                            {store.ownerName && <div>المسؤول: <b>{store.ownerName}</b></div>}
+                            {store.phone && <div className="font-mono">الهاتف: {store.phone}</div>}
+                            <div>المندوب المتعاقد: <b>{store.contractedRep?.name || 'غير محدد'}</b></div>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
+                          {/* Revisit Cycle Editor */}
+                          <div className="flex items-center gap-1.5 text-xs">
+                            <span className="text-[10px] text-slate-500 font-bold">كل:</span>
+                            <input
+                              type="number"
+                              min="1"
+                              max="90"
+                              defaultValue={store.revisitCycleDays || 14}
+                              id={`cycle-input-${store.id}`}
+                              className="w-12 bg-white border border-slate-300 rounded-lg px-1.5 py-1 text-center font-black text-xs text-[#0E4D38]"
+                            />
+                            <span className="text-[10px] text-slate-500 font-bold">يوم</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const el = document.getElementById(`cycle-input-${store.id}`) as HTMLInputElement;
+                                if (el) handleUpdateCycle(store.id, Number(el.value));
+                              }}
+                              className="bg-[#0E4D38] hover:bg-[#0a3325] text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-[#D4AF37] shadow-2xs cursor-pointer active:scale-95"
+                            >
+                              حفظ 💾
+                            </button>
+                          </div>
+
+                          <a
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[#0E4D38] hover:underline text-[11px] font-bold flex items-center gap-0.5"
+                          >
+                            <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                            <span>الموقع</span>
+                          </a>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                );
+              })()}
+            </div>
+          )}
+
+          {/* SUB-SECTION 3: VISITS AUDIT & PHOTOS */}
+          {adminSubTab === 'audit' && (
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-opdc flex flex-col gap-3">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <h3 className="font-black text-sm text-[#0E4D38]">تدقيق الزيارات الميدانية ومعرض الصور</h3>
+                </div>
+                <span className="text-xs font-bold text-slate-500">إجمالي الزيارات: {visitsFeed.length}</span>
               </div>
-            )}
-          </div>
+
+              {visitsFeed.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">
+                  <Camera className="w-12 h-12 mx-auto mb-2 text-slate-300 opacity-80" />
+                  <p className="font-bold text-sm text-slate-800">لا توجد زيارات ميدانية مسجلة حتى الآن</p>
+                  <p className="text-xs text-slate-500 mt-1">عندما ينفذ المندوبون زياراتهم ويلتقطون صور نقاط البيع ستظهر هنا فورياً مع إحداثيات الـ GPS.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {visitsFeed.map((v: any) => (
+                    <div key={v.id} className="bg-[#f8faf9] border border-slate-200 rounded-2xl p-3 flex gap-3 hover:border-[#D4AF37] transition">
+                      {v.photoUrl ? (
+                        <div
+                          onClick={() => setPreviewPhoto(v.photoUrl)}
+                          className="w-20 h-20 rounded-xl overflow-hidden bg-slate-200 shrink-0 cursor-pointer border border-slate-300 relative group"
+                        >
+                          <img src={v.photoUrl} alt="زيارة المحل" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <Eye className="w-5 h-5 text-white" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                          <ImageIcon className="w-6 h-6" />
+                        </div>
+                      )}
+
+                      <div className="flex-1 flex flex-col justify-between text-xs">
+                        <div>
+                          <div className="font-black text-slate-900 mb-0.5">{v.store?.name || 'محل'}</div>
+                          <div className="text-slate-500 text-[11px]">المندوب: <b>{v.rep?.name || 'مندوب'}</b></div>
+                          <div className="text-slate-400 text-[10px] mt-0.5 font-mono">
+                            {new Date(v.createdAt).toLocaleDateString('ar-IQ')} • {new Date(v.createdAt).toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span>موثقة بالـ GPS</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SUB-SECTION 4: SKIPS & CONFLICTS */}
+          {adminSubTab === 'skips' && (
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-opdc flex flex-col gap-3">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                  <h3 className="font-black text-sm text-[#0E4D38]">سجل التخطي الميداني وتأجيل المحطات</h3>
+                </div>
+                <span className="text-xs font-bold text-slate-500">حالات التخطي: {skipsList.length}</span>
+              </div>
+
+              {skipsList.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">
+                  <CheckCircle2 className="w-12 h-12 mx-auto mb-2 text-emerald-500 opacity-80" />
+                  <p className="font-bold text-sm text-slate-800">سجل التخطي نظيف تماماً 🟢</p>
+                  <p className="text-xs text-slate-500 mt-1">لم يقم أي مندوب بتخطي أو تأجيل أي محطة مجدولة اليوم.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {skipsList.map((skip: any) => (
+                    <div key={skip.id} className="bg-rose-50/60 border border-rose-200 rounded-2xl p-3 flex items-center justify-between text-xs">
+                      <div>
+                        <div className="font-black text-slate-900 mb-0.5">{skip.store?.name}</div>
+                        <div className="text-rose-700 font-bold">سبب التخطي: {skip.skipReason || 'محل مغلق'}</div>
+                        <div className="text-slate-400 text-[10px] font-mono mt-0.5">
+                          {skip.skippedAt ? new Date(skip.skippedAt).toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }) : ''}
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold bg-rose-100 text-rose-800 px-2 py-1 rounded-lg border border-rose-300">
+                        مؤجل للنهاية 🔴
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Quick System Shortcuts */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
             <button
               type="button"
               onClick={() => setActiveTab('LOCKED_MAP')}
-              className="bg-[#f0f7f3] hover:bg-[#e0f0e7] border border-[#c2e2d4] p-3.5 rounded-2xl text-right flex items-center justify-between transition shadow-2xs"
+              className="bg-[#f0f7f3] hover:bg-[#e0f0e7] border border-[#c2e2d4] p-3.5 rounded-2xl text-right flex items-center justify-between transition shadow-2xs cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 <span className="w-10 h-10 rounded-xl bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-lg">
@@ -1092,7 +1523,7 @@ export default function App() {
                 </span>
                 <div>
                   <span className="font-black text-sm text-[#0E4D38] block">خريطة كافة المتاجر المقفلة</span>
-                  <span className="text-xs text-slate-500">استعراض كافة المحلات ({lockedStores.length}) المسجلة لحمايتها من التضارب</span>
+                  <span className="text-xs text-slate-500">استعراض كافة المحلات المسجلة لحمايتها من التضارب</span>
                 </div>
               </div>
               <ChevronLeft className="w-5 h-5 text-[#0E4D38]" />
@@ -1101,7 +1532,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setActiveTab('NEW_STORE')}
-              className="bg-[#f0f7f3] hover:bg-[#e0f0e7] border border-[#c2e2d4] p-3.5 rounded-2xl text-right flex items-center justify-between transition shadow-2xs"
+              className="bg-[#f0f7f3] hover:bg-[#e0f0e7] border border-[#c2e2d4] p-3.5 rounded-2xl text-right flex items-center justify-between transition shadow-2xs cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 <span className="w-10 h-10 rounded-xl bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold text-lg">
@@ -1862,6 +2293,103 @@ export default function App() {
               className="w-full py-3 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-black rounded-2xl text-xs shadow-md shadow-sky-600/20 transition active:scale-98 cursor-pointer"
             >
               إغلاق ومتابعة
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD NEW SALES REP */}
+      {newRepModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+          <form
+            onSubmit={handleCreateRep}
+            className="bg-white border border-[#c2e2d4] rounded-3xl shadow-2xl p-5 sm:p-6 max-w-sm w-full flex flex-col gap-3.5"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#0E4D38] text-[#D4AF37] flex items-center justify-center font-bold">
+                  👥
+                </div>
+                <h3 className="text-sm sm:text-base font-black text-[#0E4D38]">إضافة مندوب مبيعات جديد</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNewRepModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition cursor-pointer"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">اسم المندوب الثلاثي *</label>
+              <input
+                type="text"
+                required
+                placeholder="مثال: حسام العلي"
+                value={repForm.name}
+                onChange={(e) => setRepForm({ ...repForm, name: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0E4D38]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم أو رقم الهاتف *</label>
+              <input
+                type="text"
+                required
+                placeholder="مثال: 07701234567 أو hussam"
+                value={repForm.phone}
+                onChange={(e) => setRepForm({ ...repForm, phone: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0E4D38]"
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block">يُستخدم لتسجيل دخول المندوب على تطبيق الهاتف</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">كلمة المرور *</label>
+              <input
+                type="text"
+                required
+                placeholder="كلمة المرور"
+                value={repForm.password}
+                onChange={(e) => setRepForm({ ...repForm, password: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0E4D38]"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="submit"
+                className="flex-1 py-3 bg-[#0E4D38] hover:bg-[#0a3325] text-white font-black text-xs rounded-xl shadow-md border border-[#D4AF37] transition cursor-pointer active:scale-95"
+              >
+                حفظ وإضافة المندوب ✅
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewRepModal(false)}
+                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                إلغاء
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL: PHOTO PREVIEW */}
+      {previewPhoto && (
+        <div
+          onClick={() => setPreviewPhoto(null)}
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer animate-fade-in"
+        >
+          <div className="relative max-w-lg w-full bg-black rounded-3xl overflow-hidden shadow-2xl">
+            <img src={previewPhoto} alt="معاينة الزيارة" className="w-full max-h-[80vh] object-contain" />
+            <button
+              onClick={() => setPreviewPhoto(null)}
+              className="absolute top-3 left-3 bg-white/20 hover:bg-white/40 text-white rounded-full p-1.5 transition"
+            >
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
